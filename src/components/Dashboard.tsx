@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +31,7 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ user }: DashboardProps) => {
-  const { signOut } = useAuth();
+  const { signOut, user: authUser } = useAuth();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
@@ -60,7 +59,7 @@ const Dashboard = ({ user }: DashboardProps) => {
         studentClass: receipt.student_class,
         term: receipt.term,
         session: receipt.session,
-        amountPaid: parseFloat(receipt.amount_paid),
+        amountPaid: Number(receipt.amount_paid),
         paymentDate: receipt.payment_date,
         createdAt: receipt.created_at,
         receiptNumber: receipt.receipt_number,
@@ -83,6 +82,11 @@ const Dashboard = ({ user }: DashboardProps) => {
   };
 
   const handleCreateReceipt = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+    if (!authUser) {
+      console.error('User not authenticated');
+      return;
+    }
+
     const receiptNumber = generateReceiptNumber();
     
     try {
@@ -97,6 +101,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             amount_paid: receiptData.amountPaid,
             payment_date: receiptData.paymentDate,
             receipt_number: receiptNumber,
+            user_id: authUser.id,
           }
         ])
         .select()
@@ -113,7 +118,7 @@ const Dashboard = ({ user }: DashboardProps) => {
         studentClass: data.student_class,
         term: data.term,
         session: data.session,
-        amountPaid: parseFloat(data.amount_paid),
+        amountPaid: Number(data.amount_paid),
         paymentDate: data.payment_date,
         createdAt: data.created_at,
         receiptNumber: data.receipt_number,

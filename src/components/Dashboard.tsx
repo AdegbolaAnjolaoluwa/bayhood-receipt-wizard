@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import ReceiptForm from './ReceiptForm';
 import ReceiptCard from './ReceiptCard';
 import ReceiptTable from './ReceiptTable';
@@ -27,24 +29,49 @@ interface User {
 
 interface DashboardProps {
   user: User;
-  onLogout: () => void;
 }
 
-const Dashboard = ({ user, onLogout }: DashboardProps) => {
+const Dashboard = ({ user }: DashboardProps) => {
+  const { signOut } = useAuth();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedReceipts = localStorage.getItem('bayhood_receipts');
-    if (savedReceipts) {
-      setReceipts(JSON.parse(savedReceipts));
-    }
+    fetchReceipts();
   }, []);
 
-  const saveReceiptsToStorage = (updatedReceipts: Receipt[]) => {
-    localStorage.setItem('bayhood_receipts', JSON.stringify(updatedReceipts));
-    setReceipts(updatedReceipts);
+  const fetchReceipts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('receipts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching receipts:', error);
+        return;
+      }
+
+      const formattedReceipts = data.map(receipt => ({
+        id: receipt.id,
+        studentName: receipt.student_name,
+        studentClass: receipt.student_class,
+        term: receipt.term,
+        session: receipt.session,
+        amountPaid: parseFloat(receipt.amount_paid),
+        paymentDate: receipt.payment_date,
+        createdAt: receipt.created_at,
+        receiptNumber: receipt.receipt_number,
+      }));
+
+      setReceipts(formattedReceipts);
+    } catch (error) {
+      console.error('Error fetching receipts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateReceiptNumber = () => {
@@ -55,39 +82,123 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
     return `BPS${year}${month}${random}`;
   };
 
-  const handleCreateReceipt = (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
-    const newReceipt: Receipt = {
-      ...receiptData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      receiptNumber: generateReceiptNumber(),
-    };
+  const handleCreateReceipt = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+    const receiptNumber = generateReceiptNumber();
     
-    const updatedReceipts = [newReceipt, ...receipts];
-    saveReceiptsToStorage(updatedReceipts);
-    setSelectedReceipt(newReceipt);
+    try {
+      const { data, error } = await supabase
+        .from('receipts')
+        .insert([
+          {
+            student_name: receiptData.studentName,
+            student_class: receiptData.studentClass,
+            term: receiptData.term,
+            session: receiptData.session,
+            amount_paid: receiptData.amountPaid,
+            payment_date: receiptData.paymentDate,
+            receipt_number: receiptNumber,
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating receipt:', error);
+        return;
+      }
+
+      const newReceipt: Receipt = {
+        id: data.id,
+        studentName: data.student_name,
+        studentClass: data.student_class,
+        term: data.term,
+        session: data.session,
+        amountPaid: parseFloat(data.amount_paid),
+        paymentDate: data.payment_date,
+        createdAt: data.created_at,
+        receiptNumber: data.receipt_number,
+      };
+
+      setReceipts([newReceipt, ...receipts]);
+      setSelectedReceipt(newReceipt);
+    } catch (error) {
+      console.error('Error creating receipt:', error);
+    }
   };
 
-  const handleUpdateReceipt = (updatedReceipt: Receipt) => {
-    const updatedReceipts = receipts.map(receipt =>
-      receipt.id === updatedReceipt.id ? updatedReceipt : receipt
-    );
-    saveReceiptsToStorage(updatedReceipts);
-    setEditingReceipt(null);
-    setSelectedReceipt(updatedReceipt);
+  const handleUpdateReceipt = async (updatedReceipt: Receipt) => {
+    try {
+      const { error } = await supabase
+        .from('receipts')
+        .update({
+          student_name: updatedReceipt.studentName,
+          student_class: updatedReceipt.studentClass,
+          term: updatedReceipt.term,
+          session: updatedReceipt.session,
+          amount_paid: updatedReceipt.amountPaid,
+          payment_date: updatedReceipt.paymentDate,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', updatedReceipt.id);
+
+      if (error) {
+        console.error('Error updating receipt:', error);
+        return;
+      }
+
+      const updatedReceipts = receipts.map(receipt =>
+        receipt.id === updatedReceipt.id ? updatedReceipt : receipt
+      );
+      setReceipts(updatedReceipts);
+      setEditingReceipt(null);
+      setSelectedReceipt(updatedReceipt);
+    } catch (error) {
+      console.error('Error updating receipt:', error);
+    }
   };
 
-  const handleDeleteReceipt = (receiptId: string) => {
-    const updatedReceipts = receipts.filter(receipt => receipt.id !== receiptId);
-    saveReceiptsToStorage(updatedReceipts);
-    if (selectedReceipt?.id === receiptId) {
-      setSelectedReceipt(null);
+  const handleDeleteReceipt = async (receiptId: string) => {
+    try {
+      const { error } = await supabase
+        .from('receipts')
+        .delete()
+        .eq('id', receiptId);
+
+      if (error) {
+        console.error('Error deleting receipt:', error);
+        return;
+      }
+
+      const updatedReceipts = receipts.filter(receipt => receipt.id !== receiptId);
+      setReceipts(updatedReceipts);
+      if (selectedReceipt?.id === receiptId) {
+        setSelectedReceipt(null);
+      }
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
     }
   };
 
   const handleAIGenerate = (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
     handleCreateReceipt(receiptData);
   };
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto bg-blue-600 rounded-full flex items-center justify-center mb-4">
+            <span className="text-2xl font-bold text-white">BPS</span>
+          </div>
+          <p>Loading receipts...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -110,7 +221,7 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
                 <p className="text-sm text-blue-100">{user.role}</p>
               </div>
               <Button 
-                onClick={onLogout}
+                onClick={handleLogout}
                 variant="outline"
                 className="bg-white text-blue-600 hover:bg-blue-50"
               >

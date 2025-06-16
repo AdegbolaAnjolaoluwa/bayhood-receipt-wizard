@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,20 +38,19 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* BAYHOOD School Colors */
+    --school-blue: 59 130 246;
+    --school-green: 34 197 94;
+    --school-red: 239 68 68;
+    --school-white: 255 255 255;
   }
 
   .dark {
@@ -99,5 +99,43 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* School specific styles */
+.school-gradient {
+  background: linear-gradient(135deg, rgb(var(--school-blue)), rgb(var(--school-green)));
+}
+
+.school-text-gradient {
+  background: linear-gradient(135deg, rgb(var(--school-blue)), rgb(var(--school-green)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Print styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+  .no-print {
+    display: none !important;
   }
 }

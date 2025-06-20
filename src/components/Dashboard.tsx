@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LogOut, Plus, Users } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import ReceiptForm from './ReceiptForm';
 import ReceiptTable from './ReceiptTable';
 import UserManagement from './UserManagement';
@@ -17,7 +18,7 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ user }: DashboardProps) => {
-  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('receipts');
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ const Dashboard = ({ user }: DashboardProps) => {
           session: receiptData.session,
           amount_paid: receiptData.amountPaid,
           payment_date: receiptData.paymentDate,
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: crypto.randomUUID() // Generate a random UUID since we're not using auth
         })
         .select()
         .single();
@@ -85,8 +86,12 @@ const Dashboard = ({ user }: DashboardProps) => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
+  const handleSignOut = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    navigate('/auth');
   };
 
   return (
@@ -192,9 +197,13 @@ const Dashboard = ({ user }: DashboardProps) => {
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900">User Management</h2>
-              <p className="text-gray-600 mt-2">Create CEO and Head Teacher accounts</p>
+              <p className="text-gray-600 mt-2">Simple user management (disabled in simple mode)</p>
             </div>
-            <UserManagement />
+            <Card className="border-2 border-gray-200">
+              <CardContent className="p-8 text-center">
+                <p className="text-gray-500">User management has been simplified. Only basic login is available.</p>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

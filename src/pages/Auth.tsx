@@ -5,15 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { signIn, user, loading } = useAuth();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showInitialSetup, setShowInitialSetup] = useState(false);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -21,75 +17,31 @@ const Auth = () => {
     password: ''
   });
 
-  // Initial CEO setup state
-  const [setupData, setSetupData] = useState({
-    email: 'biolafaan@gmail.com',
-    username: 'CEO Admin',
-    password: 'subomi07'
-  });
-
+  // Check if user is already logged in
   useEffect(() => {
-    if (user && !loading) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
       navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const { error } = await signIn(loginData.email, loginData.password);
-    
-    if (error) {
-      setError(error.message);
+    // Simple email/password check
+    if (loginData.email === 'biolafaan@gmail.com' && loginData.password === 'subomi07') {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', loginData.email);
+      localStorage.setItem('userName', 'CEO Admin');
+      localStorage.setItem('userRole', 'CEO');
+      navigate('/');
+    } else {
+      setError('Invalid email or password');
     }
     setIsLoading(false);
   };
-
-  const handleInitialSetup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // Create the CEO account using Supabase Auth
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: setupData.email,
-        password: setupData.password,
-        options: {
-          data: {
-            username: setupData.username,
-            role: 'CEO',
-            must_change_password: false
-          }
-        }
-      });
-
-      if (signUpError) throw signUpError;
-
-      setError('');
-      alert('CEO account created successfully! You can now log in.');
-      setShowInitialSetup(false);
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-white">BPS</span>
-          </div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100 p-4">
@@ -148,78 +100,14 @@ const Auth = () => {
               </Alert>
             )}
 
-            {/* Initial Setup Button */}
-            <div className="mt-4 text-center">
-              <Button
-                onClick={() => setShowInitialSetup(!showInitialSetup)}
-                variant="outline"
-                className="text-sm"
-              >
-                {showInitialSetup ? 'Hide Setup' : 'Initial CEO Setup'}
-              </Button>
+            {/* Login Credentials Info */}
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-800 mb-2">Login Credentials:</h3>
+              <p className="text-xs text-blue-700">Email: biolafaan@gmail.com</p>
+              <p className="text-xs text-blue-700">Password: subomi07</p>
             </div>
           </CardContent>
         </Card>
-
-        {/* Initial CEO Setup Card */}
-        {showInitialSetup && (
-          <Card className="border-2 border-green-200 shadow-2xl">
-            <CardHeader className="text-center bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
-              <CardTitle className="text-xl font-bold">Create Initial CEO Account</CardTitle>
-              <p className="text-green-100">Set up the first administrator account</p>
-            </CardHeader>
-            <CardContent className="p-6">
-              <form onSubmit={handleInitialSetup} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    value={setupData.email}
-                    onChange={(e) => setSetupData({...setupData, email: e.target.value})}
-                    placeholder="Enter CEO email"
-                    className="border-2 border-gray-300 focus:border-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Username
-                  </label>
-                  <Input
-                    type="text"
-                    value={setupData.username}
-                    onChange={(e) => setSetupData({...setupData, username: e.target.value})}
-                    placeholder="Enter username"
-                    className="border-2 border-gray-300 focus:border-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={setupData.password}
-                    onChange={(e) => setSetupData({...setupData, password: e.target.value})}
-                    placeholder="Enter password"
-                    className="border-2 border-gray-300 focus:border-green-500"
-                    required
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3"
-                >
-                  {isLoading ? 'Creating CEO Account...' : 'Create CEO Account'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

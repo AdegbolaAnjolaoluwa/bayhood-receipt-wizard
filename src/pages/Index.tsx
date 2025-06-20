@@ -1,19 +1,25 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import Dashboard from '../components/Dashboard';
-import PasswordChange from '../components/PasswordChange';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, profile, loading, mustChangePassword } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{username: string, role: string} | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    
+    if (isLoggedIn === 'true') {
+      const username = localStorage.getItem('userName') || 'User';
+      const role = localStorage.getItem('userRole') || 'User';
+      setUser({ username, role });
+    } else {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+    setLoading(false);
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -28,22 +34,13 @@ const Index = () => {
     );
   }
 
-  if (!user || !profile) {
+  if (!user) {
     return null;
-  }
-
-  // Show password change screen if user must change password
-  if (mustChangePassword) {
-    return (
-      <PasswordChange 
-        onPasswordChanged={() => window.location.reload()} 
-      />
-    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <Dashboard user={{ username: profile.username, role: profile.role }} />
+      <Dashboard user={user} />
     </div>
   );
 };

@@ -1,17 +1,17 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Receipt } from './Dashboard';
+import { Receipt } from '@/types/receipt';
 
 interface ReceiptTableProps {
   receipts: Receipt[];
+  loading: boolean;
   onEdit: (receipt: Receipt) => void;
   onDelete: (receiptId: string) => void;
   onView: (receipt: Receipt) => void;
 }
 
-const ReceiptTable = ({ receipts, onEdit, onDelete, onView }: ReceiptTableProps) => {
+const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTableProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
@@ -22,6 +22,18 @@ const ReceiptTable = ({ receipts, onEdit, onDelete, onView }: ReceiptTableProps)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB');
   };
+
+  if (loading) {
+    return (
+      <Card className="border-2 border-blue-200">
+        <CardContent className="p-8 text-center">
+          <div className="text-gray-500">
+            <p className="text-lg mb-2">Loading receipts...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (receipts.length === 0) {
     return (

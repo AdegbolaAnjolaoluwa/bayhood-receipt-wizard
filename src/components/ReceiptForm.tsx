@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt } from './Dashboard';
+import { Receipt } from '@/types/receipt';
 
 interface ReceiptFormProps {
   onSubmit: (receipt: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => void;

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Receipt } from './Dashboard';
+import { Receipt } from '@/types/receipt';
 import jsPDF from 'jspdf';
 
 interface ReceiptCardProps {

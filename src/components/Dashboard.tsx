@@ -7,6 +7,7 @@ import ReceiptForm from './ReceiptForm';
 import ReceiptTable from './ReceiptTable';
 import UserManagement from './UserManagement';
 import { supabase } from '@/integrations/supabase/client';
+import { Receipt } from '@/types/receipt';
 
 interface DashboardProps {
   user: {
@@ -18,7 +19,7 @@ interface DashboardProps {
 const Dashboard = ({ user }: DashboardProps) => {
   const { signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('receipts');
-  const [receipts, setReceipts] = useState([]);
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +34,21 @@ const Dashboard = ({ user }: DashboardProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReceipts(data || []);
+      
+      // Transform the data to match our Receipt interface
+      const transformedReceipts: Receipt[] = (data || []).map((item: any) => ({
+        id: item.id,
+        receiptNumber: item.receipt_number,
+        studentName: item.student_name,
+        studentClass: item.student_class,
+        term: item.term,
+        session: item.session,
+        amountPaid: parseFloat(item.amount_paid),
+        paymentDate: item.payment_date,
+        createdAt: item.created_at,
+      }));
+      
+      setReceipts(transformedReceipts);
     } catch (error) {
       console.error('Error fetching receipts:', error);
     } finally {
@@ -41,8 +56,33 @@ const Dashboard = ({ user }: DashboardProps) => {
     }
   };
 
-  const handleReceiptCreated = () => {
-    fetchReceipts();
+  const handleReceiptSubmit = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+    try {
+      // Generate receipt number
+      const receiptNumber = `BPS${Date.now()}`;
+      
+      const { data, error } = await supabase
+        .from('receipts')
+        .insert({
+          receipt_number: receiptNumber,
+          student_name: receiptData.studentName,
+          student_class: receiptData.studentClass,
+          term: receiptData.term,
+          session: receiptData.session,
+          amount_paid: receiptData.amountPaid,
+          payment_date: receiptData.paymentDate,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Refresh receipts
+      fetchReceipts();
+    } catch (error) {
+      console.error('Error creating receipt:', error);
+    }
   };
 
   const handleSignOut = async () => {
@@ -123,7 +163,7 @@ const Dashboard = ({ user }: DashboardProps) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <ReceiptForm onReceiptCreated={handleReceiptCreated} />
+                  <ReceiptForm onSubmit={handleReceiptSubmit} />
                 </CardContent>
               </Card>
             </div>
@@ -135,7 +175,13 @@ const Dashboard = ({ user }: DashboardProps) => {
                   <CardTitle>Recent Receipts</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <ReceiptTable receipts={receipts} loading={loading} />
+                  <ReceiptTable 
+                    receipts={receipts} 
+                    loading={loading}
+                    onEdit={(receipt) => console.log('Edit:', receipt)}
+                    onDelete={(receiptId) => console.log('Delete:', receiptId)}
+                    onView={(receipt) => console.log('View:', receipt)}
+                  />
                 </CardContent>
               </Card>
             </div>

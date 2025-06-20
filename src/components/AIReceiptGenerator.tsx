@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Receipt } from './Dashboard';
+import { Receipt } from '@/types/receipt';
 
 interface AIReceiptGeneratorProps {
   onGenerate: (receipt: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => void;

@@ -13,20 +13,26 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          must_change_password: boolean | null
           role: string
-          username: string
+          temp_password: string | null
+          username: string | null
         }
         Insert: {
           created_at?: string
           id: string
+          must_change_password?: boolean | null
           role: string
-          username: string
+          temp_password?: string | null
+          username?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          must_change_password?: boolean | null
           role?: string
-          username?: string
+          temp_password?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -77,7 +83,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_random_password: {
+        Args: { length?: number }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

@@ -8,6 +8,7 @@ interface AuthContextType {
   session: Session | null;
   profile: any | null;
   loading: boolean;
+  mustChangePassword: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -43,9 +45,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .select('*')
             .eq('id', session.user.id)
             .single();
+          
           setProfile(profile);
+          setMustChangePassword(profile?.must_change_password || false);
         } else {
           setProfile(null);
+          setMustChangePassword(false);
         }
         setLoading(false);
       }
@@ -61,7 +66,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .select('*')
           .eq('id', session.user.id)
           .single()
-          .then(({ data: profile }) => setProfile(profile));
+          .then(({ data: profile }) => {
+            setProfile(profile);
+            setMustChangePassword(profile?.must_change_password || false);
+          });
       }
       setLoading(false);
     });
@@ -86,6 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    mustChangePassword,
     signIn,
     signOut
   };

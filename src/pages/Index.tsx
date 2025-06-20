@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Dashboard from '../components/Dashboard';
+import PasswordChange from '../components/PasswordChange';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, mustChangePassword } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -29,6 +30,15 @@ const Index = () => {
 
   if (!user || !profile) {
     return null;
+  }
+
+  // Show password change screen if user must change password
+  if (mustChangePassword) {
+    return (
+      <PasswordChange 
+        onPasswordChanged={() => window.location.reload()} 
+      />
+    );
   }
 
   return (

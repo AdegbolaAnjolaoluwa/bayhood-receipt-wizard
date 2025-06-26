@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
@@ -18,64 +17,107 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
     
-    // Set up fonts and colors
-    pdf.setFontSize(20);
-    pdf.setTextColor(0, 0, 0);
+    // Load and add the logo
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      // Add logo centered at the top
+      const logoWidth = 30;
+      const logoHeight = 30;
+      const logoX = (pageWidth - logoWidth) / 2;
+      pdf.addImage(img, 'PNG', logoX, 15, logoWidth, logoHeight);
+      
+      // Set up fonts and colors
+      pdf.setFontSize(20);
+      pdf.setTextColor(37, 99, 235); // Blue color
+      
+      // School details (without name, just contact info)
+      pdf.setFontSize(12);
+      pdf.setTextColor(75, 85, 99); // Gray color
+      pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 60, { align: 'center' });
+      pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 70, { align: 'center' });
+      pdf.text('Phone: 0809 811 2378', pageWidth/2, 80, { align: 'center' });
+      
+      // Add colored background for receipt title
+      pdf.setFillColor(239, 68, 68); // Red background
+      pdf.rect(15, 90, pageWidth - 30, 15, 'F');
+      
+      // Receipt Title
+      pdf.setFontSize(16);
+      pdf.setTextColor(255, 255, 255); // White text
+      pdf.text('OFFICIAL RECEIPT', pageWidth/2, 100, { align: 'center' });
+      
+      // Receipt Details with colored background
+      pdf.setFillColor(59, 130, 246, 0.1); // Light blue background
+      pdf.rect(15, 115, pageWidth - 30, 25, 'F');
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 125);
+      pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 135);
+      
+      // Amount Box with green background
+      pdf.setFillColor(34, 197, 94, 0.2); // Light green background
+      pdf.rect(pageWidth - 80, 115, 65, 25, 'F');
+      pdf.setDrawColor(34, 197, 94);
+      pdf.rect(pageWidth - 80, 115, 65, 25, 'S');
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('AMOUNT PAID', pageWidth - 47, 125, { align: 'center' });
+      pdf.setFontSize(14);
+      pdf.setTextColor(34, 197, 94); // Green color
+      pdf.text(formatCurrency(receipt.amountPaid), pageWidth - 47, 135, { align: 'center' });
+      
+      // Student Information with blue background
+      pdf.setFillColor(59, 130, 246, 0.1); // Light blue background
+      pdf.rect(15, 150, pageWidth - 30, 50, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(37, 99, 235); // Blue color
+      pdf.text('STUDENT INFORMATION', 20, 165);
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Student Name: ${receipt.studentName}`, 20, 180);
+      pdf.text(`Class: ${receipt.studentClass}`, 20, 190);
+      pdf.text(`Term: ${receipt.term}`, pageWidth - 100, 180);
+      pdf.text(`Session: ${receipt.session}`, pageWidth - 100, 190);
+      
+      // Payment Details with green background
+      pdf.setFillColor(34, 197, 94, 0.1); // Light green background
+      pdf.rect(15, 210, pageWidth - 30, 40, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(34, 197, 94); // Green color
+      pdf.text('PAYMENT DETAILS', 20, 225);
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 240);
+      pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 250);
+      
+      // Footer with gradient-like effect
+      pdf.setFillColor(243, 244, 246); // Light gray background
+      pdf.rect(15, 260, pageWidth - 30, 25, 'F');
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(107, 114, 128); // Gray color
+      pdf.text('This receipt is computer generated and valid without signature.', 20, 270);
+      pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 280);
+      
+      // School Motto with colored background
+      pdf.setFillColor(59, 130, 246); // Blue background
+      pdf.rect(15, 290, pageWidth - 30, 15, 'F');
+      pdf.setFontSize(12);
+      pdf.setTextColor(255, 255, 255); // White text
+      pdf.text('"Excellence is Our Standard"', pageWidth/2, 300, { align: 'center' });
+      
+      // Save the PDF with student name and class
+      const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.studentClass.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
+      pdf.save(fileName);
+    };
     
-    // School Header
-    pdf.text('BAYHOOD PREPARATORY SCHOOL', pageWidth/2, 30, { align: 'center' });
-    pdf.setFontSize(12);
-    pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 40, { align: 'center' });
-    pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 50, { align: 'center' });
-    pdf.text('Phone: 0809 811 2378', pageWidth/2, 60, { align: 'center' });
-    
-    // Receipt Title
-    pdf.setFontSize(16);
-    pdf.setTextColor(220, 38, 127); // Red color
-    pdf.text('OFFICIAL RECEIPT', 20, 80);
-    
-    // Receipt Details
-    pdf.setFontSize(12);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 100);
-    pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 110);
-    
-    // Amount Box
-    pdf.setFontSize(14);
-    pdf.text('AMOUNT PAID', pageWidth - 60, 100, { align: 'center' });
-    pdf.setFontSize(16);
-    pdf.setTextColor(34, 197, 94); // Green color
-    pdf.text(formatCurrency(receipt.amountPaid), pageWidth - 60, 115, { align: 'center' });
-    
-    // Student Information
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('STUDENT INFORMATION', 20, 140);
-    pdf.setFontSize(12);
-    pdf.text(`Student Name: ${receipt.studentName}`, 20, 155);
-    pdf.text(`Class: ${receipt.studentClass}`, 20, 165);
-    pdf.text(`Term: ${receipt.term}`, 20, 175);
-    pdf.text(`Session: ${receipt.session}`, 20, 185);
-    
-    // Payment Details
-    pdf.setFontSize(14);
-    pdf.text('PAYMENT DETAILS', 20, 205);
-    pdf.setFontSize(12);
-    pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 220);
-    pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 230);
-    
-    // Footer
-    pdf.setFontSize(10);
-    pdf.text('This receipt is computer generated and valid without signature.', 20, 260);
-    pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 270);
-    
-    // School Motto
-    pdf.setFontSize(12);
-    pdf.text('"Excellence is Our Standard"', pageWidth/2, 290, { align: 'center' });
-    
-    // Save the PDF with student name and class
-    const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.studentClass.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
-    pdf.save(fileName);
+    // Set the image source to the logo
+    img.src = '/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png';
   };
 
   const formatCurrency = (amount: number) => {

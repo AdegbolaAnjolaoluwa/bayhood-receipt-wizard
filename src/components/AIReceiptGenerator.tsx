@@ -43,6 +43,15 @@ const AIReceiptGenerator = ({ onGenerate }: AIReceiptGeneratorProps) => {
       const amountMatch = lowerText.match(/(?:₦|naira|amount|paid|pay)\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/i);
       const amountPaid = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
 
+      // Extract description
+      const descriptionMatch = lowerText.match(/(?:for|payment for|paying for)\s+([^,]+?)(?:\s+paid|\s+amount|\s+₦|$)/i);
+      let description = '';
+      if (descriptionMatch && descriptionMatch[1] && !descriptionMatch[1].includes('term')) {
+        description = descriptionMatch[1].trim();
+      } else {
+        description = 'School fees';
+      }
+
       // Extract date
       const dateMatch = lowerText.match(/(?:on|date|paid on)\s+([^.]+)/i);
       let paymentDate = '';
@@ -85,6 +94,7 @@ const AIReceiptGenerator = ({ onGenerate }: AIReceiptGeneratorProps) => {
         session,
         amountPaid: amountPaid || 0,
         paymentDate: paymentDate || new Date().toISOString().split('T')[0],
+        description: description || 'School fees',
       };
 
       setParsedData(parsed);
@@ -110,9 +120,9 @@ const AIReceiptGenerator = ({ onGenerate }: AIReceiptGeneratorProps) => {
   };
 
   const examples = [
-    "Generate a receipt for Mary Johnson, Primary 5, ₦25,000 paid on June 10 for first term.",
-    "Create receipt for John Smith in JSS 2, amount ₦40,000, paid today, second term.",
-    "Receipt for Sarah Williams, Nursery 3, ₦15,000 payment on 15/06/2024.",
+    "Generate a receipt for Mary Johnson, Primary 5, ₦25,000 paid on June 10 for first term school fees.",
+    "Create receipt for John Smith in JSS 2, amount ₦40,000, paid today, second term development levy.",
+    "Receipt for Sarah Williams, Nursery 3, ₦15,000 payment on 15/06/2024 for uniform fees.",
   ];
 
   return (
@@ -131,7 +141,7 @@ const AIReceiptGenerator = ({ onGenerate }: AIReceiptGeneratorProps) => {
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Example: Generate a receipt for Mary Johnson, Primary 5, ₦25,000 paid on June 10 for first term"
+            placeholder="Example: Generate a receipt for Mary Johnson, Primary 5, ₦25,000 paid on June 10 for first term school fees"
             className="min-h-[100px] border-2 border-gray-300 focus:border-red-500"
           />
         </div>
@@ -171,6 +181,7 @@ const AIReceiptGenerator = ({ onGenerate }: AIReceiptGeneratorProps) => {
               <div><strong>Session:</strong> {parsedData.session}</div>
               <div><strong>Amount:</strong> ₦{parsedData.amountPaid.toLocaleString()}</div>
               <div><strong>Date:</strong> {parsedData.paymentDate}</div>
+              <div className="col-span-2"><strong>Description:</strong> {parsedData.description}</div>
             </div>
           </div>
         )}

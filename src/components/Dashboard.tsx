@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LogOut, Plus, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReceiptForm from './ReceiptForm';
-import ReceiptTable from './ReceiptTable';
-import UserManagement from './UserManagement';
-import { supabase } from '@/integrations/supabase/client';
+import ReceiptCard from './ReceiptCard';
+import AIReceiptGenerator from './AIReceiptGenerator';
 import { Receipt } from '@/types/receipt';
+import { createReceipt, getReceipts, updateReceipt } from '@/services/receiptService';
+import { useToast } from '@/hooks/use-toast';
 
 interface DashboardProps {
   user: {
@@ -18,193 +18,222 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ user }: DashboardProps) => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('receipts');
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
+  const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
+  const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
+  const { toast } = useToast();
 
+  // Load recent receipts on component mount
   useEffect(() => {
-    fetchReceipts();
+    const receipts = getReceipts();
+    setRecentReceipts(receipts.slice(-5).reverse()); // Get last 5 receipts
   }, []);
 
-  const fetchReceipts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('receipts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      // Transform the data to match our Receipt interface
-      const transformedReceipts: Receipt[] = (data || []).map((item: any) => ({
-        id: item.id,
-        receiptNumber: item.receipt_number,
-        studentName: item.student_name,
-        studentClass: item.student_class,
-        term: item.term,
-        session: item.session,
-        amountPaid: parseFloat(item.amount_paid),
-        paymentDate: item.payment_date,
-        createdAt: item.created_at,
-      }));
-      
-      setReceipts(transformedReceipts);
-    } catch (error) {
-      console.error('Error fetching receipts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleReceiptSubmit = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
-    try {
-      // Generate receipt number
-      const receiptNumber = `BPS${Date.now()}`;
-      
-      const { data, error } = await supabase
-        .from('receipts')
-        .insert({
-          receipt_number: receiptNumber,
-          student_name: receiptData.studentName,
-          student_class: receiptData.studentClass,
-          term: receiptData.term,
-          session: receiptData.session,
-          amount_paid: receiptData.amountPaid,
-          payment_date: receiptData.paymentDate,
-          user_id: crypto.randomUUID() // Generate a random UUID since we're not using auth
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      // Refresh receipts
-      fetchReceipts();
-    } catch (error) {
-      console.error('Error creating receipt:', error);
-    }
-  };
-
-  const handleSignOut = () => {
+  const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
     localStorage.removeItem('userRole');
-    navigate('/auth');
+    window.location.href = '/auth';
+  };
+
+  const handleReceiptSubmit = (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+    try {
+      if (editingReceipt) {
+        // Update existing receipt
+        const updated = updateReceipt(editingReceipt.id, receiptData);
+        if (updated) {
+          setCurrentReceipt(updated);
+          setEditingReceipt(null);
+          // Refresh recent receipts
+          const receipts = getReceipts();
+          setRecentReceipts(receipts.slice(-5).reverse());
+          toast({
+            title: "Success",
+            description: "Receipt updated successfully!",
+          });
+        }
+      } else {
+        // Create new receipt
+        const newReceipt = createReceipt(receiptData);
+        setCurrentReceipt(newReceipt);
+        // Refresh recent receipts
+        const receipts = getReceipts();
+        setRecentReceipts(receipts.slice(-5).reverse());
+        toast({
+          title: "Success",
+          description: `Receipt ${newReceipt.receiptNumber} generated successfully!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error creating/updating receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save receipt. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditReceipt = () => {
+    setEditingReceipt(currentReceipt);
+    setCurrentReceipt(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReceipt(null);
+  };
+
+  const handleNewReceipt = () => {
+    setCurrentReceipt(null);
+    setEditingReceipt(null);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+      <div className="bg-white shadow-md border-b-4 border-gradient-to-r from-blue-600 to-green-600">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
                 <span className="text-xl font-bold text-white">BPS</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">BAYHOOD PREPARATORY SCHOOL</h1>
-                <p className="text-sm text-gray-600">Fee Receipt Management System</p>
+                <h1 className="text-2xl font-bold text-blue-800">Bayhood Preparatory School</h1>
+                <p className="text-gray-600">Fee Receipt Management System</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user.username}</p>
-                <p className="text-xs text-gray-500">{user.role}</p>
+                <p className="font-semibold text-blue-800">{user.username}</p>
+                <p className="text-sm text-gray-600">{user.role}</p>
               </div>
-              <Button onClick={handleSignOut} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                className="border-2 border-red-500 text-red-600 hover:bg-red-50"
+              >
+                Logout
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('receipts')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'receipts'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Receipts
-            </button>
-            {user.role === 'CEO' && (
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'users'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Users className="w-4 h-4 inline mr-2" />
-                User Management
-              </button>
-            )}
-          </nav>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="border-2 border-blue-200">
+            <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-50">
+              <CardTitle className="text-blue-800">Total Receipts</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-3xl font-bold text-blue-600">{getReceipts().length}</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-2 border-green-200">
+            <CardHeader className="bg-gradient-to-r from-green-100 to-green-50">
+              <CardTitle className="text-green-800">Total Amount</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-3xl font-bold text-green-600">
+                ₦{getReceipts().reduce((sum, receipt) => sum + receipt.amountPaid, 0).toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-2 border-purple-200">
+            <CardHeader className="bg-gradient-to-r from-purple-100 to-purple-50">
+              <CardTitle className="text-purple-800">This Month</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-3xl font-bold text-purple-600">
+                {getReceipts().filter(r => {
+                  const receiptDate = new Date(r.createdAt);
+                  const now = new Date();
+                  return receiptDate.getMonth() === now.getMonth() && receiptDate.getFullYear() === now.getFullYear();
+                }).length}
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'receipts' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Receipt Form */}
-            <div className="lg:col-span-1">
-              <Card className="border-2 border-blue-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-                  <CardTitle className="flex items-center">
-                    <Plus className="w-5 h-5 mr-2" />
-                    Create New Receipt
+        {/* Main Content */}
+        {currentReceipt ? (
+          <ReceiptCard 
+            receipt={currentReceipt} 
+            onEdit={handleEditReceipt}
+          />
+        ) : (
+          <Tabs defaultValue="form" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="form">Manual Entry</TabsTrigger>
+                <TabsTrigger value="ai">AI Generator</TabsTrigger>
+              </TabsList>
+              
+              {editingReceipt && (
+                <Button 
+                  onClick={handleNewReceipt}
+                  variant="outline"
+                  className="border-2 border-gray-300 hover:bg-gray-50"
+                >
+                  New Receipt
+                </Button>
+              )}
+            </div>
+
+            <TabsContent value="form">
+              <Card className="border-2 border-blue-200">
+                <CardHeader className="bg-gradient-to-r from-blue-100 to-green-100">
+                  <CardTitle className="text-blue-800">
+                    {editingReceipt ? 'Edit Receipt' : 'Generate New Receipt'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <ReceiptForm onSubmit={handleReceiptSubmit} />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Receipts Table */}
-            <div className="lg:col-span-2">
-              <Card className="border-2 border-blue-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-                  <CardTitle>Recent Receipts</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <ReceiptTable 
-                    receipts={receipts} 
-                    loading={loading}
-                    onEdit={(receipt) => console.log('Edit:', receipt)}
-                    onDelete={(receiptId) => console.log('Delete:', receiptId)}
-                    onView={(receipt) => console.log('View:', receipt)}
+                  <ReceiptForm 
+                    onSubmit={handleReceiptSubmit}
+                    initialData={editingReceipt}
+                    onCancel={editingReceipt ? handleCancelEdit : undefined}
                   />
                 </CardContent>
               </Card>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="ai">
+              <AIReceiptGenerator onGenerate={handleReceiptSubmit} />
+            </TabsContent>
+          </Tabs>
         )}
 
-        {activeTab === 'users' && user.role === 'CEO' && (
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">User Management</h2>
-              <p className="text-gray-600 mt-2">Simple user management (disabled in simple mode)</p>
-            </div>
-            <Card className="border-2 border-gray-200">
-              <CardContent className="p-8 text-center">
-                <p className="text-gray-500">User management has been simplified. Only basic login is available.</p>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Recent Receipts */}
+        {!currentReceipt && recentReceipts.length > 0 && (
+          <Card className="mt-8 border-2 border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-gray-800">Recent Receipts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {recentReceipts.map((receipt) => (
+                  <div 
+                    key={receipt.id}
+                    className="flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setCurrentReceipt(receipt)}
+                  >
+                    <div>
+                      <p className="font-semibold">{receipt.studentName} - {receipt.studentClass}</p>
+                      <p className="text-sm text-gray-600">Receipt: {receipt.receiptNumber}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-green-600">₦{receipt.amountPaid.toLocaleString()}</p>
+                      <p className="text-sm text-gray-500">{new Date(receipt.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

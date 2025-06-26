@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
@@ -60,7 +61,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
     pdf.text('PAYMENT DETAILS', 20, 195);
     pdf.setFontSize(12);
     pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 210);
-    pdf.text('Payment Type: School Fees', 20, 220);
+    pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 220);
     
     // Footer
     pdf.setFontSize(10);
@@ -185,8 +186,8 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
                 <p className="text-lg font-semibold text-green-800">{formatDate(receipt.paymentDate)}</p>
               </div>
               <div>
-                <span className="font-semibold text-gray-700">Payment Type:</span>
-                <p className="text-lg font-semibold text-green-800">School Fees</p>
+                <span className="font-semibold text-gray-700">Payment For:</span>
+                <p className="text-lg font-semibold text-green-800">{receipt.description || 'School Fees'}</p>
               </div>
             </div>
           </div>

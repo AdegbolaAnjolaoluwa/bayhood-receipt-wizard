@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt } from '@/types/receipt';
 
@@ -18,6 +20,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
     session: '',
     amountPaid: '',
     paymentDate: '',
+    description: '',
   });
 
   useEffect(() => {
@@ -29,6 +32,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
         session: initialData.session,
         amountPaid: initialData.amountPaid.toString(),
         paymentDate: initialData.paymentDate,
+        description: initialData.description,
       });
     }
   }, [initialData]);
@@ -42,6 +46,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
       session: formData.session,
       amountPaid: parseFloat(formData.amountPaid),
       paymentDate: formData.paymentDate,
+      description: formData.description,
     });
     
     if (!initialData) {
@@ -52,6 +57,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
         session: '',
         amountPaid: '',
         paymentDate: '',
+        description: '',
       });
     }
   };
@@ -171,6 +177,18 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             required
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Payment Description
+        </label>
+        <Textarea
+          value={formData.description}
+          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          placeholder="e.g., School fees for first term, Development levy, etc."
+          className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+        />
       </div>
 
       <div className="flex space-x-4">

@@ -8,5 +8,6 @@ export interface Receipt {
   session: string;
   amountPaid: number;
   paymentDate: string;
+  description: string;
   createdAt: string;
 }

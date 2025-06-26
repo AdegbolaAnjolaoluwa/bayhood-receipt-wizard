@@ -16,100 +16,144 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
   const handleDownloadPDF = () => {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     
     // Load and add the logo
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = function() {
       // Add logo centered at the top
-      const logoWidth = 30;
-      const logoHeight = 30;
+      const logoWidth = 40;
+      const logoHeight = 40;
       const logoX = (pageWidth - logoWidth) / 2;
       pdf.addImage(img, 'PNG', logoX, 15, logoWidth, logoHeight);
       
-      // Set up fonts and colors
-      pdf.setFontSize(20);
-      pdf.setTextColor(37, 99, 235); // Blue color
-      
-      // School details (without name, just contact info)
-      pdf.setFontSize(12);
+      // School contact information below logo
+      pdf.setFontSize(10);
       pdf.setTextColor(75, 85, 99); // Gray color
-      pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 60, { align: 'center' });
-      pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 70, { align: 'center' });
-      pdf.text('Phone: 0809 811 2378', pageWidth/2, 80, { align: 'center' });
+      pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 65, { align: 'center' });
+      pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 72, { align: 'center' });
+      pdf.text('Phone: 0809 811 2378', pageWidth/2, 79, { align: 'center' });
       
-      // Add colored background for receipt title
+      // Add a decorative border line
+      pdf.setDrawColor(59, 130, 246); // Blue color
+      pdf.setLineWidth(2);
+      pdf.line(15, 85, pageWidth - 15, 85);
+      
+      // Receipt Title with colorful background
       pdf.setFillColor(239, 68, 68); // Red background
-      pdf.rect(15, 90, pageWidth - 30, 15, 'F');
-      
-      // Receipt Title
-      pdf.setFontSize(16);
+      pdf.roundedRect(15, 90, pageWidth - 30, 18, 3, 3, 'F');
+      pdf.setFontSize(18);
       pdf.setTextColor(255, 255, 255); // White text
-      pdf.text('OFFICIAL RECEIPT', pageWidth/2, 100, { align: 'center' });
+      pdf.text('OFFICIAL RECEIPT', pageWidth/2, 102, { align: 'center' });
       
-      // Receipt Details with colored background
-      pdf.setFillColor(59, 130, 246, 0.1); // Light blue background
-      pdf.rect(15, 115, pageWidth - 30, 25, 'F');
-      
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 125);
-      pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 135);
-      
-      // Amount Box with green background
-      pdf.setFillColor(34, 197, 94, 0.2); // Light green background
-      pdf.rect(pageWidth - 80, 115, 65, 25, 'F');
-      pdf.setDrawColor(34, 197, 94);
-      pdf.rect(pageWidth - 80, 115, 65, 25, 'S');
+      // Receipt details section with blue background
+      pdf.setFillColor(219, 234, 254); // Light blue background
+      pdf.roundedRect(15, 115, (pageWidth - 30) * 0.6, 35, 3, 3, 'F');
       
       pdf.setFontSize(12);
+      pdf.setTextColor(37, 99, 235); // Blue text
+      pdf.text('Receipt Details:', 20, 125);
+      pdf.setFontSize(10);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('AMOUNT PAID', pageWidth - 47, 125, { align: 'center' });
-      pdf.setFontSize(14);
-      pdf.setTextColor(34, 197, 94); // Green color
-      pdf.text(formatCurrency(receipt.amountPaid), pageWidth - 47, 135, { align: 'center' });
+      pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 135);
+      pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 143);
       
-      // Student Information with blue background
-      pdf.setFillColor(59, 130, 246, 0.1); // Light blue background
-      pdf.rect(15, 150, pageWidth - 30, 50, 'F');
-      
-      pdf.setFontSize(14);
-      pdf.setTextColor(37, 99, 235); // Blue color
-      pdf.text('STUDENT INFORMATION', 20, 165);
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Student Name: ${receipt.studentName}`, 20, 180);
-      pdf.text(`Class: ${receipt.studentClass}`, 20, 190);
-      pdf.text(`Term: ${receipt.term}`, pageWidth - 100, 180);
-      pdf.text(`Session: ${receipt.session}`, pageWidth - 100, 190);
-      
-      // Payment Details with green background
-      pdf.setFillColor(34, 197, 94, 0.1); // Light green background
-      pdf.rect(15, 210, pageWidth - 30, 40, 'F');
-      
-      pdf.setFontSize(14);
-      pdf.setTextColor(34, 197, 94); // Green color
-      pdf.text('PAYMENT DETAILS', 20, 225);
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 240);
-      pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 250);
-      
-      // Footer with gradient-like effect
-      pdf.setFillColor(243, 244, 246); // Light gray background
-      pdf.rect(15, 260, pageWidth - 30, 25, 'F');
+      // Amount box with green styling
+      const amountBoxX = pageWidth - 80;
+      pdf.setFillColor(220, 252, 231); // Light green background
+      pdf.roundedRect(amountBoxX, 115, 65, 35, 3, 3, 'F');
+      pdf.setDrawColor(34, 197, 94); // Green border
+      pdf.setLineWidth(2);
+      pdf.roundedRect(amountBoxX, 115, 65, 35, 3, 3, 'S');
       
       pdf.setFontSize(10);
-      pdf.setTextColor(107, 114, 128); // Gray color
-      pdf.text('This receipt is computer generated and valid without signature.', 20, 270);
-      pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 280);
+      pdf.setTextColor(34, 197, 94); // Green text
+      pdf.text('AMOUNT PAID', amountBoxX + 32.5, 125, { align: 'center' });
+      pdf.setFontSize(14);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(formatCurrency(receipt.amountPaid), amountBoxX + 32.5, 140, { align: 'center' });
+      pdf.setFont(undefined, 'normal');
       
-      // School Motto with colored background
+      // Student Information section with gradient-like background
+      pdf.setFillColor(243, 244, 246); // Light gray background
+      pdf.roundedRect(15, 160, pageWidth - 30, 50, 3, 3, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(37, 99, 235); // Blue color
+      pdf.setFont(undefined, 'bold');
+      pdf.text('STUDENT INFORMATION', 20, 175);
+      pdf.setFont(undefined, 'normal');
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Student Name:', 20, 185);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(receipt.studentName, 55, 185);
+      
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Class:', 20, 195);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(receipt.studentClass, 40, 195);
+      
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Term:', pageWidth - 80, 185);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(receipt.term, pageWidth - 60, 185);
+      
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Session:', pageWidth - 80, 195);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(receipt.session, pageWidth - 50, 195);
+      
+      // Payment Details section with green styling
+      pdf.setFillColor(240, 253, 244); // Light green background
+      pdf.roundedRect(15, 220, pageWidth - 30, 40, 3, 3, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(34, 197, 94); // Green color
+      pdf.setFont(undefined, 'bold');
+      pdf.text('PAYMENT DETAILS', 20, 235);
+      pdf.setFont(undefined, 'normal');
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Payment Date:', 20, 245);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(34, 197, 94);
+      pdf.text(formatDate(receipt.paymentDate), 60, 245);
+      
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Payment For:', 20, 253);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(34, 197, 94);
+      pdf.text(receipt.description || 'School Fees', 58, 253);
+      
+      // Footer section
+      pdf.setFillColor(249, 250, 251); // Very light gray
+      pdf.roundedRect(15, 270, pageWidth - 30, 25, 3, 3, 'F');
+      
+      pdf.setFontSize(9);
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(107, 114, 128); // Gray color
+      pdf.text('This receipt is computer generated and valid without signature.', 20, 280);
+      pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 287);
+      
+      // School Motto with blue gradient-like background
       pdf.setFillColor(59, 130, 246); // Blue background
-      pdf.rect(15, 290, pageWidth - 30, 15, 'F');
+      pdf.roundedRect(15, 300, pageWidth - 30, 15, 3, 3, 'F');
       pdf.setFontSize(12);
       pdf.setTextColor(255, 255, 255); // White text
-      pdf.text('"Excellence is Our Standard"', pageWidth/2, 300, { align: 'center' });
+      pdf.setFont(undefined, 'bold');
+      pdf.text('"Excellence is Our Standard"', pageWidth/2, 310, { align: 'center' });
       
       // Save the PDF with student name and class
       const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.studentClass.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;

@@ -25,52 +25,53 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
     // School Header
     pdf.text('BAYHOOD PREPARATORY SCHOOL', pageWidth/2, 30, { align: 'center' });
     pdf.setFontSize(12);
-    pdf.text('Excellence in Education • Character Building • Academic Excellence', pageWidth/2, 40, { align: 'center' });
-    pdf.text('123 Education Street, Lagos, Nigeria | Tel: +234-XXX-XXXX-XXX', pageWidth/2, 50, { align: 'center' });
+    pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 40, { align: 'center' });
+    pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 50, { align: 'center' });
+    pdf.text('Phone: 0809 811 2378', pageWidth/2, 60, { align: 'center' });
     
     // Receipt Title
     pdf.setFontSize(16);
     pdf.setTextColor(220, 38, 127); // Red color
-    pdf.text('OFFICIAL RECEIPT', 20, 70);
+    pdf.text('OFFICIAL RECEIPT', 20, 80);
     
     // Receipt Details
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 90);
-    pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 100);
+    pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 100);
+    pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 110);
     
     // Amount Box
     pdf.setFontSize(14);
-    pdf.text('AMOUNT PAID', pageWidth - 60, 90, { align: 'center' });
+    pdf.text('AMOUNT PAID', pageWidth - 60, 100, { align: 'center' });
     pdf.setFontSize(16);
     pdf.setTextColor(34, 197, 94); // Green color
-    pdf.text(formatCurrency(receipt.amountPaid), pageWidth - 60, 105, { align: 'center' });
+    pdf.text(formatCurrency(receipt.amountPaid), pageWidth - 60, 115, { align: 'center' });
     
     // Student Information
     pdf.setFontSize(14);
     pdf.setTextColor(0, 0, 0);
-    pdf.text('STUDENT INFORMATION', 20, 130);
+    pdf.text('STUDENT INFORMATION', 20, 140);
     pdf.setFontSize(12);
-    pdf.text(`Student Name: ${receipt.studentName}`, 20, 145);
-    pdf.text(`Class: ${receipt.studentClass}`, 20, 155);
-    pdf.text(`Term: ${receipt.term}`, 20, 165);
-    pdf.text(`Session: ${receipt.session}`, 20, 175);
+    pdf.text(`Student Name: ${receipt.studentName}`, 20, 155);
+    pdf.text(`Class: ${receipt.studentClass}`, 20, 165);
+    pdf.text(`Term: ${receipt.term}`, 20, 175);
+    pdf.text(`Session: ${receipt.session}`, 20, 185);
     
     // Payment Details
     pdf.setFontSize(14);
-    pdf.text('PAYMENT DETAILS', 20, 195);
+    pdf.text('PAYMENT DETAILS', 20, 205);
     pdf.setFontSize(12);
-    pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 210);
-    pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 220);
+    pdf.text(`Payment Date: ${formatDate(receipt.paymentDate)}`, 20, 220);
+    pdf.text(`Payment For: ${receipt.description || 'School Fees'}`, 20, 230);
     
     // Footer
     pdf.setFontSize(10);
-    pdf.text('This receipt is computer generated and valid without signature.', 20, 250);
-    pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 260);
+    pdf.text('This receipt is computer generated and valid without signature.', 20, 260);
+    pdf.text(`Generated on: ${formatDate(receipt.createdAt)}`, 20, 270);
     
     // School Motto
     pdf.setFontSize(12);
-    pdf.text('"Excellence is Our Standard"', pageWidth/2, 280, { align: 'center' });
+    pdf.text('"Excellence is Our Standard"', pageWidth/2, 290, { align: 'center' });
     
     // Save the PDF with student name and class
     const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.studentClass.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
@@ -124,13 +125,16 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           {/* School Header */}
           <div className="text-center border-b-4 border-gradient-to-r from-blue-600 to-green-600 pb-6 mb-8">
             <div className="flex justify-center items-center space-x-4 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-white">BPS</span>
-              </div>
+              <img 
+                src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+                alt="Bayhood Preparatory School Logo" 
+                className="h-20 w-auto"
+              />
             </div>
             <h1 className="text-3xl font-bold text-blue-800 mb-2">BAYHOOD PREPARATORY SCHOOL</h1>
-            <p className="text-gray-600 mb-2">Excellence in Education • Character Building • Academic Excellence</p>
-            <p className="text-sm text-gray-500">123 Education Street, Lagos, Nigeria | Tel: +234-XXX-XXXX-XXX</p>
+            <p className="text-gray-600 mb-2">Crèche | Preschool | Nursery | Afterschool</p>
+            <p className="text-sm text-gray-500 mb-1">House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos</p>
+            <p className="text-sm text-gray-500">Phone: 0809 811 2378</p>
           </div>
 
           {/* Receipt Header */}

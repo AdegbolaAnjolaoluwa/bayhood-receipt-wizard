@@ -95,9 +95,11 @@ const Dashboard = ({ user }: DashboardProps) => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-xl font-bold text-white">BPS</span>
-              </div>
+              <img 
+                src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+                alt="Bayhood Preparatory School Logo" 
+                className="h-12 w-auto"
+              />
               <div>
                 <h1 className="text-2xl font-bold text-blue-800">Bayhood Preparatory School</h1>
                 <p className="text-gray-600">Fee Receipt Management System</p>

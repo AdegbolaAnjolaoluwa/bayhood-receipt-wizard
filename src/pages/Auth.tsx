@@ -11,10 +11,9 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Login form state
+  // Login form state - removed password
   const [loginData, setLoginData] = useState({
-    email: '',
-    password: ''
+    email: ''
   });
 
   // Check if user is already logged in
@@ -30,28 +29,32 @@ const Auth = () => {
     setIsLoading(true);
     setError('');
 
-    // Simple email/password check
-    if (loginData.email === 'biolafaan@gmail.com' && loginData.password === 'subomi07') {
+    // Simple email check - removed password requirement
+    if (loginData.email === 'biolafaan@gmail.com') {
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', loginData.email);
       localStorage.setItem('userName', 'CEO Admin');
       localStorage.setItem('userRole', 'CEO');
       navigate('/');
     } else {
-      setError('Invalid email or password');
+      setError('Invalid email address');
     }
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-green-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
       <div className="w-full max-w-md space-y-4">
         {/* Main Login Card */}
         <Card className="border-2 border-blue-200 shadow-2xl">
           <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-t-lg">
             <div className="mb-4">
-              <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center mb-2">
-                <span className="text-2xl font-bold text-blue-600">BPS</span>
+              <div className="flex justify-center mb-4">
+                <img 
+                  src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+                  alt="Bayhood Preparatory School Logo" 
+                  className="h-20 w-auto"
+                />
               </div>
             </div>
             <CardTitle className="text-2xl font-bold">BAYHOOD PREPARATORY SCHOOL</CardTitle>
@@ -68,19 +71,6 @@ const Auth = () => {
                   value={loginData.email}
                   onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                   placeholder="Enter your email"
-                  className="border-2 border-gray-300 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <Input
-                  type="password"
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                  placeholder="Enter your password"
                   className="border-2 border-gray-300 focus:border-blue-500"
                   required
                 />
@@ -104,7 +94,6 @@ const Auth = () => {
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="text-sm font-medium text-blue-800 mb-2">Login Credentials:</h3>
               <p className="text-xs text-blue-700">Email: biolafaan@gmail.com</p>
-              <p className="text-xs text-blue-700">Password: subomi07</p>
             </div>
           </CardContent>
         </Card>

@@ -1,27 +1,61 @@
 
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Dashboard from '../components/Dashboard';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{username: string, role: string} | null>(null);
+  const [userProfile, setUserProfile] = useState<{username: string, role: string} | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    
-    if (isLoggedIn === 'true') {
-      const username = localStorage.getItem('userName') || 'User';
-      const role = localStorage.getItem('userRole') || 'User';
-      setUser({ username, role });
-    } else {
+    if (!loading && !user) {
       navigate('/auth');
+      return;
     }
-    setLoading(false);
-  }, [navigate]);
 
-  if (loading) {
+    if (user) {
+      // Fetch user profile from Supabase
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('username, role')
+            .eq('id', user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching profile:', error);
+            // Fallback to email and default role
+            setUserProfile({
+              username: user.email || 'User',
+              role: 'User'
+            });
+          } else {
+            setUserProfile({
+              username: data.username || user.email || 'User',
+              role: data.role || 'User'
+            });
+          }
+        } catch (err) {
+          console.error('Profile fetch error:', err);
+          setUserProfile({
+            username: user.email || 'User',
+            role: 'User'
+          });
+        } finally {
+          setProfileLoading(false);
+        }
+      };
+
+      fetchProfile();
+    }
+  }, [user, loading, navigate]);
+
+  if (loading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
         <div className="text-center">
@@ -34,13 +68,13 @@ const Index = () => {
     );
   }
 
-  if (!user) {
+  if (!user || !userProfile) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <Dashboard user={user} />
+      <Dashboard user={userProfile} />
     </div>
   );
 };

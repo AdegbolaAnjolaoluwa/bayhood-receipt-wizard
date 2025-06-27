@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import AIReceiptGenerator from './AIReceiptGenerator';
 import { Receipt } from '@/types/receipt';
 import { createReceipt, getReceipts, updateReceipt } from '@/services/receiptService';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardProps {
   user: {
@@ -18,6 +18,7 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ user }: DashboardProps) => {
+  const { signOut } = useAuth();
   const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
@@ -29,11 +30,13 @@ const Dashboard = ({ user }: DashboardProps) => {
     setRecentReceipts(receipts.slice(-5).reverse()); // Get last 5 receipts
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userRole');
-    window.location.href = '/auth';
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Navigation will be handled by the auth context
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const handleReceiptSubmit = (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {

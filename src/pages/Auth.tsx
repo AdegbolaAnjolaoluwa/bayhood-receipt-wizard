@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/hooks/useAuth';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { signIn, user, loading } = useAuth();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,29 +21,47 @@ const Auth = () => {
 
   // Check if user is already logged in
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn === 'true') {
+    if (user && !loading) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [user, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simple login check
-    if (loginData.email === 'biolafaan@gmail.com' && loginData.password === 'subomi07') {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', loginData.email);
-      localStorage.setItem('userName', 'CEO Admin');
-      localStorage.setItem('userRole', 'CEO');
-      navigate('/');
-    } else {
-      setError('Invalid email or password');
+    try {
+      const { error } = await signIn(loginData.email, loginData.password);
+      
+      if (error) {
+        setError(error.message || 'Invalid email or password');
+      } else {
+        // Navigation will be handled by the useEffect above
+      }
+    } catch (err: any) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="text-center">
+          <div className="mb-4">
+            <img 
+              src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+              alt="Bayhood Preparatory School Logo" 
+              className="h-16 w-auto mx-auto"
+            />
+          </div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">

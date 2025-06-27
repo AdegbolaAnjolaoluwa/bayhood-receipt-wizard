@@ -31,7 +31,7 @@ const Auth = () => {
     setError('');
 
     // Simple login check
-    if (loginData.email === 'biolafaan@gmail.com' && loginData.password === 'admin123') {
+    if (loginData.email === 'biolafaan@gmail.com' && loginData.password === 'subomi07') {
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', loginData.email);
       localStorage.setItem('userName', 'CEO Admin');
@@ -44,24 +44,24 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-blue-50 p-4">
-      <div className="w-full max-w-md space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <div className="w-full max-w-sm sm:max-w-md space-y-4">
         {/* Main Login Card */}
-        <Card className="border-2 border-orange-200 shadow-2xl">
-          <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-blue-600 text-white rounded-t-lg">
-            <div className="mb-4">
-              <div className="flex justify-center mb-4">
+        <Card className="border shadow-lg">
+          <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-blue-600 text-white rounded-t-lg p-4 sm:p-6">
+            <div className="mb-2 sm:mb-4">
+              <div className="flex justify-center mb-2 sm:mb-4">
                 <img 
                   src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
                   alt="Bayhood Preparatory School Logo" 
-                  className="h-20 w-auto"
+                  className="h-16 sm:h-20 w-auto"
                 />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">BAYHOOD PREPARATORY SCHOOL</CardTitle>
-            <p className="text-orange-100">Fee Receipt Management System</p>
+            <CardTitle className="text-lg sm:text-2xl font-bold">BAYHOOD PREPARATORY SCHOOL</CardTitle>
+            <p className="text-orange-100 text-sm sm:text-base">Fee Receipt Management System</p>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6 bg-white">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -72,7 +72,7 @@ const Auth = () => {
                   value={loginData.email}
                   onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                   placeholder="Enter your email"
-                  className="border-2 border-gray-300 focus:border-orange-500"
+                  className="border-2 border-gray-300 focus:border-orange-500 w-full"
                   required
                 />
               </div>
@@ -85,14 +85,14 @@ const Auth = () => {
                   value={loginData.password}
                   onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                   placeholder="Enter your password"
-                  className="border-2 border-gray-300 focus:border-orange-500"
+                  className="border-2 border-gray-300 focus:border-orange-500 w-full"
                   required
                 />
               </div>
               <Button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-semibold py-3"
+                className="w-full bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-semibold py-3 text-sm sm:text-base"
               >
                 {isLoading ? 'Signing in...' : 'Login'}
               </Button>
@@ -100,7 +100,7 @@ const Auth = () => {
 
             {error && (
               <Alert className="mt-4 border-red-200 bg-red-50">
-                <AlertDescription className="text-red-700">{error}</AlertDescription>
+                <AlertDescription className="text-red-700 text-sm">{error}</AlertDescription>
               </Alert>
             )}
           </CardContent>

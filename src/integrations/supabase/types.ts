@@ -9,84 +9,13 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          created_at: string
-          id: string
-          must_change_password: boolean | null
-          role: string
-          temp_password: string | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string
-          id: string
-          must_change_password?: boolean | null
-          role: string
-          temp_password?: string | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          must_change_password?: boolean | null
-          role?: string
-          temp_password?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
-      receipts: {
-        Row: {
-          amount_paid: number
-          created_at: string
-          id: string
-          payment_date: string
-          receipt_number: string
-          session: string
-          student_class: string
-          student_name: string
-          term: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount_paid: number
-          created_at?: string
-          id?: string
-          payment_date: string
-          receipt_number: string
-          session: string
-          student_class: string
-          student_name: string
-          term: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount_paid?: number
-          created_at?: string
-          id?: string
-          payment_date?: string
-          receipt_number?: string
-          session?: string
-          student_class?: string
-          student_name?: string
-          term?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      generate_random_password: {
-        Args: { length?: number }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

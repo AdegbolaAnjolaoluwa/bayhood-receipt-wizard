@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,6 +69,10 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
   ];
 
   const classes = [
+    'Creche',
+    'Playgroup',
+    'Preschool 1',
+    'Preschool 2',
     'Nursery 1', 'Nursery 2', 'Nursery 3',
     'Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6',
     'JSS 1', 'JSS 2', 'JSS 3',
@@ -88,7 +91,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             value={formData.studentName}
             onChange={(e) => setFormData({...formData, studentName: e.target.value})}
             placeholder="Enter student's full name"
-            className="border-2 border-gray-300 focus:border-blue-500"
+            className="border-2 border-gray-300 focus:border-orange-500"
             required
           />
         </div>
@@ -101,7 +104,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             value={formData.studentClass} 
             onValueChange={(value) => setFormData({...formData, studentClass: value})}
           >
-            <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
               <SelectValue placeholder="Select class" />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +123,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             value={formData.term} 
             onValueChange={(value) => setFormData({...formData, term: value})}
           >
-            <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
               <SelectValue placeholder="Select term" />
             </SelectTrigger>
             <SelectContent>
@@ -139,7 +142,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             value={formData.session} 
             onValueChange={(value) => setFormData({...formData, session: value})}
           >
-            <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
               <SelectValue placeholder="Select session" />
             </SelectTrigger>
             <SelectContent>
@@ -160,7 +163,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             value={formData.amountPaid}
             onChange={(e) => setFormData({...formData, amountPaid: e.target.value})}
             placeholder="Enter amount paid"
-            className="border-2 border-gray-300 focus:border-blue-500"
+            className="border-2 border-gray-300 focus:border-orange-500"
             required
           />
         </div>
@@ -173,7 +176,7 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
             type="date"
             value={formData.paymentDate}
             onChange={(e) => setFormData({...formData, paymentDate: e.target.value})}
-            className="border-2 border-gray-300 focus:border-blue-500"
+            className="border-2 border-gray-300 focus:border-orange-500"
             required
           />
         </div>
@@ -187,14 +190,14 @@ const ReceiptForm = ({ onSubmit, initialData, onCancel }: ReceiptFormProps) => {
           value={formData.description}
           onChange={(e) => setFormData({...formData, description: e.target.value})}
           placeholder="e.g., School fees for first term, Development levy, etc."
-          className="border-2 border-gray-300 focus:border-blue-500 min-h-[80px]"
+          className="border-2 border-gray-300 focus:border-orange-500 min-h-[80px]"
         />
       </div>
 
       <div className="flex space-x-4">
         <Button 
           type="submit" 
-          className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold px-8 py-3"
+          className="bg-gradient-to-r from-orange-500 to-blue-600 hover:from-orange-600 hover:to-blue-700 text-white font-semibold px-8 py-3"
         >
           {initialData ? 'Update Receipt' : 'Generate Receipt'}
         </Button>

@@ -127,7 +127,7 @@ const Dashboard = ({ user }: DashboardProps) => {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <img 
-                src="/lovable-uploads/c0e84b59-fd88-4b7a-b3c5-9d7c8e4f0123.png" 
+                src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
                 alt="Bayhood Preparatory School Logo" 
                 className="h-12 w-auto"
               />

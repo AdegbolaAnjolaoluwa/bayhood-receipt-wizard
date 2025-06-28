@@ -151,7 +151,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
     };
     
     // Set the image source to the new logo
-    img.src = '/lovable-uploads/c0e84b59-fd88-4b7a-b3c5-9d7c8e4f0123.png';
+    img.src = '/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png';
   };
 
   const formatCurrency = (amount: number) => {
@@ -202,7 +202,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           <div className="text-center border-b-4 border-gradient-to-r from-orange-500 to-blue-600 pb-6 mb-8">
             <div className="flex justify-center items-center space-x-4 mb-4">
               <img 
-                src="/lovable-uploads/c0e84b59-fd88-4b7a-b3c5-9d7c8e4f0123.png" 
+                src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
                 alt="Bayhood Preparatory School Logo" 
                 className="h-24 w-auto"
               />

@@ -59,8 +59,12 @@ const Index = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-white">BPS</span>
+          <div className="mb-4">
+            <img 
+              src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
+              alt="Bayhood Preparatory School Logo" 
+              className="h-16 w-auto mx-auto"
+            />
           </div>
           <p>Loading...</p>
         </div>

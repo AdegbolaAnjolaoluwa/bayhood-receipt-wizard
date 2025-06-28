@@ -72,7 +72,7 @@ const Auth = () => {
             <div className="mb-2 sm:mb-4">
               <div className="flex justify-center mb-2 sm:mb-4">
                 <img 
-                  src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+                  src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
                   alt="Bayhood Preparatory School Logo" 
                   className="h-16 sm:h-20 w-auto"
                 />

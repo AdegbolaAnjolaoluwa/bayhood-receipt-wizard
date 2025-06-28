@@ -3,21 +3,30 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface SimpleReceiptFormProps {
   onSubmit: (receiptData: {
-    payerName: string;
-    purpose: string;
-    amount: number;
+    studentName: string;
+    studentClass: string;
+    term: string;
+    session: string;
+    amountPaid: number;
+    paymentDate: string;
+    description: string;
   }) => void;
   onCancel?: () => void;
 }
 
 const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
   const [formData, setFormData] = useState({
-    payerName: '',
-    purpose: '',
-    amount: '',
+    studentName: '',
+    studentClass: '',
+    term: '',
+    session: '',
+    amountPaid: '',
+    paymentDate: '',
+    description: '',
   });
 
   const quickAmounts = [10000, 20000, 50000];
@@ -25,82 +34,179 @@ const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      payerName: formData.payerName,
-      purpose: formData.purpose,
-      amount: parseFloat(formData.amount),
+      studentName: formData.studentName,
+      studentClass: formData.studentClass,
+      term: formData.term,
+      session: formData.session,
+      amountPaid: parseFloat(formData.amountPaid),
+      paymentDate: formData.paymentDate,
+      description: formData.description,
     });
     
     // Reset form
     setFormData({
-      payerName: '',
-      purpose: '',
-      amount: '',
+      studentName: '',
+      studentClass: '',
+      term: '',
+      session: '',
+      amountPaid: '',
+      paymentDate: '',
+      description: '',
     });
   };
 
   const handleQuickAmount = (amount: number) => {
-    setFormData({ ...formData, amount: amount.toString() });
+    setFormData({ ...formData, amountPaid: amount.toString() });
   };
+
+  const currentYear = new Date().getFullYear();
+  const sessions = [
+    `${currentYear - 1}/${currentYear}`,
+    `${currentYear}/${currentYear + 1}`,
+    `${currentYear + 1}/${currentYear + 2}`,
+  ];
+
+  const classes = [
+    'Creche',
+    'Playgroup',
+    'Preschool 1',
+    'Preschool 2',
+    'Nursery 1', 'Nursery 2', 'Nursery 3',
+    'Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6',
+    'JSS 1', 'JSS 2', 'JSS 3',
+    'SSS 1', 'SSS 2', 'SSS 3'
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Payer Name *
-        </label>
-        <Input
-          type="text"
-          value={formData.payerName}
-          onChange={(e) => setFormData({...formData, payerName: e.target.value})}
-          placeholder="Enter payer's name"
-          className="border-2 border-gray-300 focus:border-orange-500"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Purpose/Description *
-        </label>
-        <Textarea
-          value={formData.purpose}
-          onChange={(e) => setFormData({...formData, purpose: e.target.value})}
-          placeholder="Enter payment purpose or description"
-          className="border-2 border-gray-300 focus:border-orange-500 min-h-[80px]"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Amount (₦) *
-        </label>
-        
-        {/* Quick Amount Buttons */}
-        <div className="mb-3 flex flex-wrap gap-2">
-          {quickAmounts.map((amount) => (
-            <Button
-              key={amount}
-              type="button"
-              variant="outline"
-              onClick={() => handleQuickAmount(amount)}
-              className="border-2 border-blue-300 text-blue-600 hover:bg-blue-50"
-            >
-              ₦{amount.toLocaleString()}
-            </Button>
-          ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Student Name *
+          </label>
+          <Input
+            type="text"
+            value={formData.studentName}
+            onChange={(e) => setFormData({...formData, studentName: e.target.value})}
+            placeholder="Enter student's full name"
+            className="border-2 border-gray-300 focus:border-orange-500"
+            required
+          />
         </div>
 
-        {/* Manual Amount Input */}
-        <Input
-          type="number"
-          step="0.01"
-          min="0"
-          value={formData.amount}
-          onChange={(e) => setFormData({...formData, amount: e.target.value})}
-          placeholder="Enter custom amount"
-          className="border-2 border-gray-300 focus:border-orange-500"
-          required
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Class *
+          </label>
+          <Select 
+            value={formData.studentClass} 
+            onValueChange={(value) => setFormData({...formData, studentClass: value})}
+          >
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
+              <SelectValue placeholder="Select class" />
+            </SelectTrigger>
+            <SelectContent>
+              {classes.map((cls) => (
+                <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Term *
+          </label>
+          <Select 
+            value={formData.term} 
+            onValueChange={(value) => setFormData({...formData, term: value})}
+          >
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
+              <SelectValue placeholder="Select term" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="First Term">First Term</SelectItem>
+              <SelectItem value="Second Term">Second Term</SelectItem>
+              <SelectItem value="Third Term">Third Term</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Session *
+          </label>
+          <Select 
+            value={formData.session} 
+            onValueChange={(value) => setFormData({...formData, session: value})}
+          >
+            <SelectTrigger className="border-2 border-gray-300 focus:border-orange-500">
+              <SelectValue placeholder="Select session" />
+            </SelectTrigger>
+            <SelectContent>
+              {sessions.map((session) => (
+                <SelectItem key={session} value={session}>{session}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Payment Date *
+          </label>
+          <Input
+            type="date"
+            value={formData.paymentDate}
+            onChange={(e) => setFormData({...formData, paymentDate: e.target.value})}
+            className="border-2 border-gray-300 focus:border-orange-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Amount Paid (₦) *
+          </label>
+          
+          {/* Quick Amount Buttons */}
+          <div className="mb-3 flex flex-wrap gap-2">
+            {quickAmounts.map((amount) => (
+              <Button
+                key={amount}
+                type="button"
+                variant="outline"
+                onClick={() => handleQuickAmount(amount)}
+                className="border-2 border-blue-300 text-blue-600 hover:bg-blue-50"
+              >
+                ₦{amount.toLocaleString()}
+              </Button>
+            ))}
+          </div>
+
+          {/* Manual Amount Input */}
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.amountPaid}
+            onChange={(e) => setFormData({...formData, amountPaid: e.target.value})}
+            placeholder="Enter custom amount"
+            className="border-2 border-gray-300 focus:border-orange-500"
+            required
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Payment Description
+        </label>
+        <Textarea
+          value={formData.description}
+          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          placeholder="e.g., School fees for first term, Development levy, etc."
+          className="border-2 border-gray-300 focus:border-orange-500 min-h-[80px]"
         />
       </div>
 

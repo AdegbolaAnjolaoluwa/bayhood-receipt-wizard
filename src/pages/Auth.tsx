@@ -68,7 +68,7 @@ const Auth = () => {
       <div className="w-full max-w-sm sm:max-w-md space-y-4">
         {/* Main Login Card */}
         <Card className="border shadow-lg">
-          <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-blue-600 text-white rounded-t-lg p-4 sm:p-6">
+          <CardHeader className="text-center bg-white text-gray-800 rounded-t-lg p-4 sm:p-6 border-b">
             <div className="mb-2 sm:mb-4">
               <div className="flex justify-center mb-2 sm:mb-4">
                 <img 
@@ -78,8 +78,8 @@ const Auth = () => {
                 />
               </div>
             </div>
-            <CardTitle className="text-lg sm:text-2xl font-bold">BAYHOOD PREPARATORY SCHOOL</CardTitle>
-            <p className="text-orange-100 text-sm sm:text-base">Fee Receipt Management System</p>
+            <CardTitle className="text-lg sm:text-2xl font-bold text-blue-800">BAYHOOD PREPARATORY SCHOOL</CardTitle>
+            <p className="text-gray-600 text-sm sm:text-base">Fee Receipt Management System</p>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 bg-white">
             <form onSubmit={handleLogin} className="space-y-4">

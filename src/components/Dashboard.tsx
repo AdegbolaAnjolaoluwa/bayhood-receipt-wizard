@@ -59,19 +59,23 @@ const Dashboard = ({ user }: DashboardProps) => {
   };
 
   const handleSimpleReceiptSubmit = async (receiptData: {
-    payerName: string;
-    purpose: string;
-    amount: number;
+    studentName: string;
+    studentClass: string;
+    term: string;
+    session: string;
+    amountPaid: number;
+    paymentDate: string;
+    description: string;
   }) => {
     try {
       const newReceipt = await createSupabaseReceipt({
-        studentName: receiptData.payerName,
-        studentClass: 'N/A',
-        term: 'N/A',
-        session: new Date().getFullYear().toString(),
-        amountPaid: receiptData.amount,
-        paymentDate: new Date().toISOString().split('T')[0],
-        description: receiptData.purpose,
+        studentName: receiptData.studentName,
+        studentClass: receiptData.studentClass,
+        term: receiptData.term,
+        session: receiptData.session,
+        amountPaid: receiptData.amountPaid,
+        paymentDate: receiptData.paymentDate,
+        description: receiptData.description,
       });
       
       setCurrentReceipt(newReceipt);

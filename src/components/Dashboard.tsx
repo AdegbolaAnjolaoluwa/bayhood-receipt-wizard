@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ReceiptForm from './ReceiptForm';
+import SimpleReceiptForm from './SimpleReceiptForm';
 import ReceiptCard from './ReceiptCard';
-import AIReceiptGenerator from './AIReceiptGenerator';
+import ReceiptTable from './ReceiptTable';
 import { Receipt } from '@/types/receipt';
-import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt } from '@/services/supabaseReceiptService';
+import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -23,8 +23,9 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
-  const [totalReceipts, setTotalReceipts] = useState<Receipt[]>([]);
+  const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<'generate' | 'view'>('generate');
   const { toast } = useToast();
 
   // Load receipts from Supabase on component mount
@@ -32,8 +33,8 @@ const Dashboard = ({ user }: DashboardProps) => {
     const loadReceipts = async () => {
       try {
         const receipts = await getSupabaseReceipts();
-        setTotalReceipts(receipts);
-        setRecentReceipts(receipts.slice(0, 5)); // Get first 5 receipts (already sorted by created_at desc)
+        setAllReceipts(receipts);
+        setRecentReceipts(receipts.slice(0, 5));
       } catch (error) {
         console.error('Error loading receipts:', error);
         toast({
@@ -57,63 +58,82 @@ const Dashboard = ({ user }: DashboardProps) => {
     }
   };
 
-  const handleReceiptSubmit = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+  const handleSimpleReceiptSubmit = async (receiptData: {
+    payerName: string;
+    purpose: string;
+    amount: number;
+  }) => {
     try {
-      if (editingReceipt) {
-        // Update existing receipt
-        const updated = await updateSupabaseReceipt(editingReceipt.id, receiptData);
-        if (updated) {
-          setCurrentReceipt(updated);
-          setEditingReceipt(null);
-          // Refresh receipts
-          const receipts = await getSupabaseReceipts();
-          setTotalReceipts(receipts);
-          setRecentReceipts(receipts.slice(0, 5));
-          toast({
-            title: "Success",
-            description: "Receipt updated successfully!",
-          });
-        }
-      } else {
-        // Create new receipt
-        const newReceipt = await createSupabaseReceipt(receiptData);
-        setCurrentReceipt(newReceipt);
-        // Refresh receipts
-        const receipts = await getSupabaseReceipts();
-        setTotalReceipts(receipts);
-        setRecentReceipts(receipts.slice(0, 5));
-        toast({
-          title: "Success",
-          description: `Receipt ${newReceipt.receiptNumber} generated and saved successfully!`,
-        });
-      }
+      const newReceipt = await createSupabaseReceipt({
+        studentName: receiptData.payerName,
+        studentClass: 'N/A',
+        term: 'N/A',
+        session: new Date().getFullYear().toString(),
+        amountPaid: receiptData.amount,
+        paymentDate: new Date().toISOString().split('T')[0],
+        description: receiptData.purpose,
+      });
+      
+      setCurrentReceipt(newReceipt);
+      
+      // Refresh receipts
+      const receipts = await getSupabaseReceipts();
+      setAllReceipts(receipts);
+      setRecentReceipts(receipts.slice(0, 5));
+      
+      toast({
+        title: "Success",
+        description: `Receipt ${newReceipt.receiptNumber} generated successfully!`,
+      });
     } catch (error) {
-      console.error('Error creating/updating receipt:', error);
+      console.error('Error creating receipt:', error);
       toast({
         title: "Error",
-        description: "Failed to save receipt. Please try again.",
+        description: "Failed to generate receipt. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const handleEditReceipt = () => {
-    setEditingReceipt(currentReceipt);
+  const handleEditReceipt = (receipt: Receipt) => {
+    setEditingReceipt(receipt);
     setCurrentReceipt(null);
+    setCurrentView('generate');
   };
 
-  const handleCancelEdit = () => {
-    setEditingReceipt(null);
+  const handleDeleteReceipt = async (receiptId: string) => {
+    try {
+      const success = await deleteSupabaseReceipt(receiptId);
+      if (success) {
+        // Refresh receipts
+        const receipts = await getSupabaseReceipts();
+        setAllReceipts(receipts);
+        setRecentReceipts(receipts.slice(0, 5));
+        
+        toast({
+          title: "Success",
+          description: "Receipt deleted successfully!",
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete receipt.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleNewReceipt = () => {
     setCurrentReceipt(null);
     setEditingReceipt(null);
+    setCurrentView('generate');
   };
 
   // Calculate stats
-  const totalAmount = totalReceipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
-  const thisMonth = totalReceipts.filter(r => {
+  const totalAmount = allReceipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
+  const thisMonth = allReceipts.filter(r => {
     const receiptDate = new Date(r.createdAt);
     const now = new Date();
     return receiptDate.getMonth() === now.getMonth() && receiptDate.getFullYear() === now.getFullYear();
@@ -137,6 +157,24 @@ const Dashboard = ({ user }: DashboardProps) => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Navigation */}
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => setCurrentView('generate')}
+                  variant={currentView === 'generate' ? 'default' : 'outline'}
+                  className="border-2"
+                >
+                  Generate Receipt
+                </Button>
+                <Button
+                  onClick={() => setCurrentView('view')}
+                  variant={currentView === 'view' ? 'default' : 'outline'}
+                  className="border-2"
+                >
+                  View Receipts
+                </Button>
+              </div>
+              
               <div className="text-right">
                 <p className="font-semibold text-blue-800">{user.username}</p>
                 <p className="text-sm text-gray-600">{user.role}</p>
@@ -162,7 +200,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent className="pt-6">
               <p className="text-3xl font-bold text-blue-600">
-                {loading ? '...' : totalReceipts.length}
+                {loading ? '...' : allReceipts.length}
               </p>
             </CardContent>
           </Card>
@@ -194,52 +232,34 @@ const Dashboard = ({ user }: DashboardProps) => {
         {currentReceipt ? (
           <ReceiptCard 
             receipt={currentReceipt} 
-            onEdit={handleEditReceipt}
+            onEdit={() => handleEditReceipt(currentReceipt)}
           />
+        ) : currentView === 'generate' ? (
+          <Card className="border-2 border-blue-200">
+            <CardHeader className="bg-gradient-to-r from-blue-100 to-green-100">
+              <CardTitle className="text-blue-800">
+                Generate New Receipt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <SimpleReceiptForm 
+                onSubmit={handleSimpleReceiptSubmit}
+                onCancel={editingReceipt ? handleNewReceipt : undefined}
+              />
+            </CardContent>
+          </Card>
         ) : (
-          <Tabs defaultValue="form" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
-                <TabsTrigger value="form">Manual Entry</TabsTrigger>
-                <TabsTrigger value="ai">AI Generator</TabsTrigger>
-              </TabsList>
-              
-              {editingReceipt && (
-                <Button 
-                  onClick={handleNewReceipt}
-                  variant="outline"
-                  className="border-2 border-gray-300 hover:bg-gray-50"
-                >
-                  New Receipt
-                </Button>
-              )}
-            </div>
-
-            <TabsContent value="form">
-              <Card className="border-2 border-blue-200">
-                <CardHeader className="bg-gradient-to-r from-blue-100 to-green-100">
-                  <CardTitle className="text-blue-800">
-                    {editingReceipt ? 'Edit Receipt' : 'Generate New Receipt'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <ReceiptForm 
-                    onSubmit={handleReceiptSubmit}
-                    initialData={editingReceipt}
-                    onCancel={editingReceipt ? handleCancelEdit : undefined}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="ai">
-              <AIReceiptGenerator onGenerate={handleReceiptSubmit} />
-            </TabsContent>
-          </Tabs>
+          <ReceiptTable
+            receipts={allReceipts}
+            loading={loading}
+            onEdit={handleEditReceipt}
+            onDelete={handleDeleteReceipt}
+            onView={setCurrentReceipt}
+          />
         )}
 
-        {/* Recent Receipts */}
-        {!currentReceipt && recentReceipts.length > 0 && (
+        {/* Recent Receipts - Only show on generate view */}
+        {currentView === 'generate' && !currentReceipt && recentReceipts.length > 0 && (
           <Card className="mt-8 border-2 border-gray-200">
             <CardHeader>
               <CardTitle className="text-gray-800">Recent Receipts</CardTitle>
@@ -253,7 +273,7 @@ const Dashboard = ({ user }: DashboardProps) => {
                     onClick={() => setCurrentReceipt(receipt)}
                   >
                     <div>
-                      <p className="font-semibold">{receipt.studentName} - {receipt.studentClass}</p>
+                      <p className="font-semibold">{receipt.studentName}</p>
                       <p className="text-sm text-gray-600">Receipt: {receipt.receiptNumber}</p>
                     </div>
                     <div className="text-right">

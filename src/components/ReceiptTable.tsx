@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -59,12 +60,10 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="font-bold">Receipt No.</TableHead>
-                <TableHead className="font-bold">Student Name</TableHead>
-                <TableHead className="font-bold">Class</TableHead>
-                <TableHead className="font-bold">Term</TableHead>
-                <TableHead className="font-bold">Session</TableHead>
+                <TableHead className="font-bold">Payer Name</TableHead>
+                <TableHead className="font-bold">Purpose</TableHead>
                 <TableHead className="font-bold">Amount</TableHead>
-                <TableHead className="font-bold">Payment Date</TableHead>
+                <TableHead className="font-bold">Date Created</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -75,13 +74,13 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
                     {receipt.receiptNumber}
                   </TableCell>
                   <TableCell className="font-semibold">{receipt.studentName}</TableCell>
-                  <TableCell>{receipt.studentClass}</TableCell>
-                  <TableCell>{receipt.term}</TableCell>
-                  <TableCell>{receipt.session}</TableCell>
+                  <TableCell className="max-w-xs truncate" title={receipt.description}>
+                    {receipt.description || 'N/A'}
+                  </TableCell>
                   <TableCell className="font-semibold text-green-600">
                     {formatCurrency(receipt.amountPaid)}
                   </TableCell>
-                  <TableCell>{formatDate(receipt.paymentDate)}</TableCell>
+                  <TableCell>{formatDate(receipt.createdAt)}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button

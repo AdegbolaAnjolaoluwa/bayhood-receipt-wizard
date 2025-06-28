@@ -36,6 +36,51 @@ export type Database = {
         }
         Relationships: []
       }
+      receipts: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          payment_date: string
+          receipt_data: Json | null
+          receipt_number: string
+          session: string
+          student_class: string
+          student_name: string
+          term: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          payment_date: string
+          receipt_data?: Json | null
+          receipt_number: string
+          session: string
+          student_class: string
+          student_name: string
+          term: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          payment_date?: string
+          receipt_data?: Json | null
+          receipt_number?: string
+          session?: string
+          student_class?: string
+          student_name?: string
+          term?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

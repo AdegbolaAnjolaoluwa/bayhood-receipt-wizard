@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import ReceiptForm from './ReceiptForm';
 import ReceiptCard from './ReceiptCard';
 import AIReceiptGenerator from './AIReceiptGenerator';
 import { Receipt } from '@/types/receipt';
-import { createReceipt, getReceipts, updateReceipt } from '@/services/receiptService';
+import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -22,34 +23,52 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
+  const [totalReceipts, setTotalReceipts] = useState<Receipt[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load recent receipts on component mount
+  // Load receipts from Supabase on component mount
   useEffect(() => {
-    const receipts = getReceipts();
-    setRecentReceipts(receipts.slice(-5).reverse()); // Get last 5 receipts
-  }, []);
+    const loadReceipts = async () => {
+      try {
+        const receipts = await getSupabaseReceipts();
+        setTotalReceipts(receipts);
+        setRecentReceipts(receipts.slice(0, 5)); // Get first 5 receipts (already sorted by created_at desc)
+      } catch (error) {
+        console.error('Error loading receipts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load receipts",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReceipts();
+  }, [toast]);
 
   const handleLogout = async () => {
     try {
       await signOut();
-      // Navigation will be handled by the auth context
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
-  const handleReceiptSubmit = (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
+  const handleReceiptSubmit = async (receiptData: Omit<Receipt, 'id' | 'createdAt' | 'receiptNumber'>) => {
     try {
       if (editingReceipt) {
         // Update existing receipt
-        const updated = updateReceipt(editingReceipt.id, receiptData);
+        const updated = await updateSupabaseReceipt(editingReceipt.id, receiptData);
         if (updated) {
           setCurrentReceipt(updated);
           setEditingReceipt(null);
-          // Refresh recent receipts
-          const receipts = getReceipts();
-          setRecentReceipts(receipts.slice(-5).reverse());
+          // Refresh receipts
+          const receipts = await getSupabaseReceipts();
+          setTotalReceipts(receipts);
+          setRecentReceipts(receipts.slice(0, 5));
           toast({
             title: "Success",
             description: "Receipt updated successfully!",
@@ -57,14 +76,15 @@ const Dashboard = ({ user }: DashboardProps) => {
         }
       } else {
         // Create new receipt
-        const newReceipt = createReceipt(receiptData);
+        const newReceipt = await createSupabaseReceipt(receiptData);
         setCurrentReceipt(newReceipt);
-        // Refresh recent receipts
-        const receipts = getReceipts();
-        setRecentReceipts(receipts.slice(-5).reverse());
+        // Refresh receipts
+        const receipts = await getSupabaseReceipts();
+        setTotalReceipts(receipts);
+        setRecentReceipts(receipts.slice(0, 5));
         toast({
           title: "Success",
-          description: `Receipt ${newReceipt.receiptNumber} generated successfully!`,
+          description: `Receipt ${newReceipt.receiptNumber} generated and saved successfully!`,
         });
       }
     } catch (error) {
@@ -91,6 +111,14 @@ const Dashboard = ({ user }: DashboardProps) => {
     setEditingReceipt(null);
   };
 
+  // Calculate stats
+  const totalAmount = totalReceipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
+  const thisMonth = totalReceipts.filter(r => {
+    const receiptDate = new Date(r.createdAt);
+    const now = new Date();
+    return receiptDate.getMonth() === now.getMonth() && receiptDate.getFullYear() === now.getFullYear();
+  }).length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Header */}
@@ -99,7 +127,7 @@ const Dashboard = ({ user }: DashboardProps) => {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <img 
-                src="/lovable-uploads/078af04c-c3bd-4605-9cee-39fb18d92842.png" 
+                src="/lovable-uploads/c0e84b59-fd88-4b7a-b3c5-9d7c8e4f0123.png" 
                 alt="Bayhood Preparatory School Logo" 
                 className="h-12 w-auto"
               />
@@ -133,7 +161,9 @@ const Dashboard = ({ user }: DashboardProps) => {
               <CardTitle className="text-blue-800">Total Receipts</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <p className="text-3xl font-bold text-blue-600">{getReceipts().length}</p>
+              <p className="text-3xl font-bold text-blue-600">
+                {loading ? '...' : totalReceipts.length}
+              </p>
             </CardContent>
           </Card>
           
@@ -143,7 +173,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent className="pt-6">
               <p className="text-3xl font-bold text-green-600">
-                ₦{getReceipts().reduce((sum, receipt) => sum + receipt.amountPaid, 0).toLocaleString()}
+                {loading ? '...' : `₦${totalAmount.toLocaleString()}`}
               </p>
             </CardContent>
           </Card>
@@ -154,11 +184,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent className="pt-6">
               <p className="text-3xl font-bold text-purple-600">
-                {getReceipts().filter(r => {
-                  const receiptDate = new Date(r.createdAt);
-                  const now = new Date();
-                  return receiptDate.getMonth() === now.getMonth() && receiptDate.getFullYear() === now.getFullYear();
-                }).length}
+                {loading ? '...' : thisMonth}
               </p>
             </CardContent>
           </Card>

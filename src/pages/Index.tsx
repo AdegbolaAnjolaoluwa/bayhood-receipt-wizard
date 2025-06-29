@@ -20,7 +20,6 @@ const Index = () => {
     }
 
     if (user) {
-      // Fetch user profile from Supabase
       const fetchProfile = async () => {
         try {
           const { data, error } = await supabase
@@ -31,7 +30,6 @@ const Index = () => {
 
           if (error) {
             console.error('Error fetching profile:', error);
-            // Fallback to email and default role
             setUserProfile({
               username: user.email || 'User',
               role: 'User'
@@ -87,9 +85,8 @@ const Index = () => {
     return null;
   }
 
-  // Show splash screen first, then dashboard
   if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
+    return <SplashScreen onComplete={handleSplashComplete} user={user} />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Dashboard from '../components/Dashboard';
+import SplashScreen from '../components/SplashScreen';
 import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
@@ -10,6 +11,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<{username: string, role: string} | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -55,6 +57,10 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
   if (loading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -79,6 +85,11 @@ const Index = () => {
 
   if (!user || !userProfile) {
     return null;
+  }
+
+  // Show splash screen first, then dashboard
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (

@@ -66,8 +66,40 @@ const Dashboard = ({ user }: DashboardProps) => {
     amountPaid: number;
     paymentDate: string;
     description: string;
+    feeCategories?: { category: string; amount: number }[];
+    discount?: { type: string; value: number; amount: number };
+    paymentMethod?: string;
+    totalAmount?: number;
+    outstandingBalance?: number;
+    paymentStatus?: string;
   }) => {
     try {
+      // Create enhanced description with fee breakdown and payment details
+      let enhancedDescription = receiptData.description;
+      
+      if (receiptData.feeCategories && receiptData.feeCategories.length > 0) {
+        const feeBreakdown = receiptData.feeCategories
+          .map(fee => `${fee.category}: ₦${fee.amount.toLocaleString()}`)
+          .join(', ');
+        enhancedDescription = `${enhancedDescription || 'Payment for'} - ${feeBreakdown}`;
+        
+        if (receiptData.discount && receiptData.discount.type !== 'none') {
+          enhancedDescription += ` | Discount Applied: ${receiptData.discount.type === 'custom' ? '₦' + receiptData.discount.amount.toLocaleString() : receiptData.discount.value + '%'}`;
+        }
+        
+        if (receiptData.paymentMethod) {
+          enhancedDescription += ` | Payment Method: ${receiptData.paymentMethod}`;
+        }
+        
+        if (receiptData.outstandingBalance && receiptData.outstandingBalance > 0) {
+          enhancedDescription += ` | Outstanding Balance: ₦${receiptData.outstandingBalance.toLocaleString()}`;
+        }
+        
+        if (receiptData.paymentStatus) {
+          enhancedDescription += ` | Status: ${receiptData.paymentStatus}`;
+        }
+      }
+
       const newReceipt = await createSupabaseReceipt({
         studentName: receiptData.studentName,
         studentClass: receiptData.studentClass,
@@ -75,7 +107,7 @@ const Dashboard = ({ user }: DashboardProps) => {
         session: receiptData.session,
         amountPaid: receiptData.amountPaid,
         paymentDate: receiptData.paymentDate,
-        description: receiptData.description,
+        description: enhancedDescription,
       });
       
       setCurrentReceipt(newReceipt);
@@ -157,7 +189,7 @@ const Dashboard = ({ user }: DashboardProps) => {
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">Fee Receipt Management System</h1>
-                <p className="text-gray-600">Efficient • Secure • Professional</p>
+                <p className="text-gray-600">Professional • Secure • Efficient</p>
               </div>
             </div>
             <div className="flex items-center space-x-6">

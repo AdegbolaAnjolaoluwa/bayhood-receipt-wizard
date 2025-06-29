@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -7,15 +8,20 @@ interface SplashScreenProps {
 
 const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const { user } = useAuth();
+  
+  // Check if current user is the CEO
+  const isCEO = user?.email === 'biolafaan@gmail.com';
+  const splashDuration = isCEO ? 1678 : 1200; // 1.678 seconds for CEO, 1.2 seconds for others
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onComplete, 300); // Small delay for fade out animation
-    }, 1200); // 1.2 seconds
+    }, splashDuration);
 
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, [onComplete, splashDuration]);
 
   if (!isVisible) {
     return null;
@@ -32,12 +38,20 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           />
         </div>
         <div className="animate-pulse">
+          {isCEO ? (
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome back, CEO!</h2>
+              <p className="text-gray-600 font-medium">Excellence in education starts with your leadership</p>
+            </div>
+          ) : null}
           <div className="flex items-center space-x-2 justify-center">
             <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
             <div className="w-4 h-4 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
             <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
-          <p className="text-gray-600 mt-4 font-medium">Loading...</p>
+          <p className="text-gray-600 mt-4 font-medium">
+            {isCEO ? 'Preparing your executive dashboard...' : 'Loading...'}
+          </p>
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { Receipt } from '@/types/receipt';
 import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { FileText, Users, DollarSign, Calendar } from 'lucide-react';
 
 interface DashboardProps {
   user: {
@@ -144,49 +144,59 @@ const Dashboard = ({ user }: DashboardProps) => {
   }).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
-      <div className="bg-white shadow-md border-b-4 border-gradient-to-r from-blue-600 to-green-600">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="bg-white shadow-lg border-b-4 border-gradient-to-r from-blue-600 to-green-600">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <img 
-                src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
+                src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
                 alt="Bayhood Preparatory School Logo" 
-                className="h-12 w-auto"
+                className="h-16 w-auto"
               />
               <div>
-                <h1 className="text-2xl font-bold text-blue-800">Bayhood Preparatory School</h1>
-                <p className="text-gray-600">Fee Receipt Management System</p>
+                <h1 className="text-2xl font-bold text-gray-800">Fee Receipt Management System</h1>
+                <p className="text-gray-600">Efficient • Secure • Professional</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               {/* Navigation */}
-              <div className="flex space-x-2">
+              <div className="flex space-x-3">
                 <Button
                   onClick={() => setCurrentView('generate')}
                   variant={currentView === 'generate' ? 'default' : 'outline'}
-                  className="border-2"
+                  className={`border-2 font-semibold ${
+                    currentView === 'generate' 
+                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
+                  <FileText className="w-4 h-4 mr-2" />
                   Generate Receipt
                 </Button>
                 <Button
                   onClick={() => setCurrentView('view')}
                   variant={currentView === 'view' ? 'default' : 'outline'}
-                  className="border-2"
+                  className={`border-2 font-semibold ${
+                    currentView === 'view' 
+                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
+                  <Users className="w-4 h-4 mr-2" />
                   View Receipts
                 </Button>
               </div>
               
-              <div className="text-right">
-                <p className="font-semibold text-blue-800">{user.username}</p>
+              <div className="text-right bg-gradient-to-r from-blue-100 to-green-100 px-4 py-2 rounded-lg border border-blue-200">
+                <p className="font-bold text-gray-800">{user.username}</p>
                 <p className="text-sm text-gray-600">{user.role}</p>
               </div>
               <Button 
                 onClick={handleLogout}
                 variant="outline"
-                className="border-2 border-red-500 text-red-600 hover:bg-red-50"
+                className="border-2 border-red-400 text-red-600 hover:bg-red-50 font-semibold"
               >
                 Logout
               </Button>
@@ -198,36 +208,48 @@ const Dashboard = ({ user }: DashboardProps) => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="border-2 border-blue-200">
-            <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-50">
-              <CardTitle className="text-blue-800">Total Receipts</CardTitle>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white font-semibold">Total Receipts</CardTitle>
+                <FileText className="w-6 h-6 text-blue-100" />
+              </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-3xl font-bold text-blue-600">
+            <CardContent>
+              <p className="text-3xl font-bold">
                 {loading ? '...' : allReceipts.length}
               </p>
+              <p className="text-blue-100 text-sm mt-1">All time receipts</p>
             </CardContent>
           </Card>
           
-          <Card className="border-2 border-green-200">
-            <CardHeader className="bg-gradient-to-r from-green-100 to-green-50">
-              <CardTitle className="text-green-800">Total Amount</CardTitle>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white font-semibold">Total Amount</CardTitle>
+                <DollarSign className="w-6 h-6 text-green-100" />
+              </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-3xl font-bold text-green-600">
+            <CardContent>
+              <p className="text-3xl font-bold">
                 {loading ? '...' : `₦${totalAmount.toLocaleString()}`}
               </p>
+              <p className="text-green-100 text-sm mt-1">Total collected</p>
             </CardContent>
           </Card>
           
-          <Card className="border-2 border-purple-200">
-            <CardHeader className="bg-gradient-to-r from-purple-100 to-purple-50">
-              <CardTitle className="text-purple-800">This Month</CardTitle>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white font-semibold">This Month</CardTitle>
+                <Calendar className="w-6 h-6 text-purple-100" />
+              </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-3xl font-bold text-purple-600">
+            <CardContent>
+              <p className="text-3xl font-bold">
                 {loading ? '...' : thisMonth}
               </p>
+              <p className="text-purple-100 text-sm mt-1">Recent receipts</p>
             </CardContent>
           </Card>
         </div>
@@ -239,13 +261,14 @@ const Dashboard = ({ user }: DashboardProps) => {
             onEdit={() => handleEditReceipt(currentReceipt)}
           />
         ) : currentView === 'generate' ? (
-          <Card className="border-2 border-blue-200">
-            <CardHeader className="bg-gradient-to-r from-blue-100 to-green-100">
-              <CardTitle className="text-blue-800">
+          <Card className="border-0 shadow-xl bg-white">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 border-b border-gray-100">
+              <CardTitle className="text-gray-800 text-xl font-bold">
                 Generate New Receipt
               </CardTitle>
+              <p className="text-gray-600">Fill in the student details and payment information</p>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-8">
               <SimpleReceiptForm 
                 onSubmit={handleSimpleReceiptSubmit}
                 onCancel={editingReceipt ? handleNewReceipt : undefined}
@@ -264,24 +287,26 @@ const Dashboard = ({ user }: DashboardProps) => {
 
         {/* Recent Receipts - Only show on generate view */}
         {currentView === 'generate' && !currentReceipt && recentReceipts.length > 0 && (
-          <Card className="mt-8 border-2 border-gray-200">
-            <CardHeader>
-              <CardTitle className="text-gray-800">Recent Receipts</CardTitle>
+          <Card className="mt-8 border-0 shadow-lg bg-white">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-100">
+              <CardTitle className="text-gray-800 font-bold">Recent Receipts</CardTitle>
+              <p className="text-gray-600 text-sm">Quick access to recently generated receipts</p>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="p-6">
+              <div className="space-y-3">
                 {recentReceipts.map((receipt) => (
                   <div 
                     key={receipt.id}
-                    className="flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    className="flex justify-between items-center p-4 border border-gray-200 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 cursor-pointer transition-all duration-200 hover:shadow-md"
                     onClick={() => setCurrentReceipt(receipt)}
                   >
                     <div>
-                      <p className="font-semibold">{receipt.studentName}</p>
+                      <p className="font-semibold text-gray-800">{receipt.studentName}</p>
                       <p className="text-sm text-gray-600">Receipt: {receipt.receiptNumber}</p>
+                      <p className="text-xs text-gray-500">{receipt.studentClass} • {receipt.term}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-green-600">₦{receipt.amountPaid.toLocaleString()}</p>
+                      <p className="font-bold text-green-600 text-lg">₦{receipt.amountPaid.toLocaleString()}</p>
                       <p className="text-sm text-gray-500">{new Date(receipt.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>

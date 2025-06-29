@@ -150,8 +150,8 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
       pdf.save(fileName);
     };
     
-    // Set the image source to the new logo
-    img.src = '/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png';
+    // Set the image source to the new colorful logo
+    img.src = '/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png';
   };
 
   const formatCurrency = (amount: number) => {
@@ -170,45 +170,44 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center print:hidden">
-        <h2 className="text-2xl font-bold text-orange-600">Receipt Preview</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">Receipt Preview</h2>
         <div className="space-x-4">
           <Button 
             onClick={onEdit}
             variant="outline"
-            className="border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+            className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
           >
             Edit Receipt
           </Button>
           <Button 
             onClick={handleDownloadPDF}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white"
+            className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold shadow-lg"
           >
             Download PDF
           </Button>
           <Button 
             onClick={handlePrint}
-            className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg"
           >
             Print Receipt
           </Button>
         </div>
       </div>
 
-      <Card className="max-w-4xl mx-auto bg-white border-2 border-gray-300 print:border-none print:shadow-none">
+      <Card className="max-w-4xl mx-auto bg-white border-0 shadow-2xl print:border-none print:shadow-none">
         <CardContent className="p-8">
           {/* School Header */}
-          <div className="text-center border-b-4 border-gradient-to-r from-orange-500 to-blue-600 pb-6 mb-8">
-            <div className="flex justify-center items-center space-x-4 mb-4">
+          <div className="text-center border-b-4 border-gradient-to-r from-blue-500 to-green-500 pb-8 mb-8">
+            <div className="flex justify-center items-center space-x-4 mb-6">
               <img 
-                src="/lovable-uploads/0054f70d-58c4-4fcc-bd7c-426a6f6d8b13.png" 
+                src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
                 alt="Bayhood Preparatory School Logo" 
-                className="h-24 w-auto"
+                className="h-32 w-auto"
               />
             </div>
-            <h1 className="text-3xl font-bold text-orange-600 mb-2">BAYHOOD PREPARATORY SCHOOL</h1>
-            <p className="text-gray-600 mb-2">Crèche | Preschool | Nursery | Afterschool</p>
+            <p className="text-gray-600 mb-2 font-medium">Crèche | Preschool | Nursery | Afterschool</p>
             <p className="text-sm text-gray-500 mb-1">House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos</p>
             <p className="text-sm text-gray-500">Phone: 0809 811 2378</p>
           </div>
@@ -216,77 +215,77 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           {/* Receipt Header */}
           <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-orange-600 mb-4">OFFICIAL RECEIPT</h2>
-              <div className="space-y-2">
-                <p><span className="font-semibold">Receipt No:</span> {receipt.receiptNumber}</p>
-                <p><span className="font-semibold">Date Issued:</span> {formatDate(receipt.createdAt)}</p>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent mb-4">OFFICIAL RECEIPT</h2>
+              <div className="space-y-3">
+                <p className="text-lg"><span className="font-semibold text-gray-700">Receipt No:</span> <span className="font-bold text-blue-600">{receipt.receiptNumber}</span></p>
+                <p className="text-lg"><span className="font-semibold text-gray-700">Date Issued:</span> <span className="font-bold text-green-600">{formatDate(receipt.createdAt)}</span></p>
               </div>
             </div>
             <div className="text-right">
-              <div className="bg-gradient-to-r from-orange-100 to-blue-100 p-4 rounded-lg border-2 border-orange-200">
-                <h3 className="text-lg font-bold text-orange-600 mb-2">AMOUNT PAID</h3>
-                <p className="text-3xl font-bold text-blue-600">{formatCurrency(receipt.amountPaid)}</p>
+              <div className="bg-gradient-to-r from-blue-100 via-green-100 to-blue-100 p-6 rounded-xl border-2 border-blue-200 shadow-lg">
+                <h3 className="text-xl font-bold text-gray-700 mb-3">AMOUNT PAID</h3>
+                <p className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{formatCurrency(receipt.amountPaid)}</p>
               </div>
             </div>
           </div>
 
           {/* Student Details */}
-          <div className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200 mb-8">
-            <h3 className="text-xl font-bold text-orange-600 mb-4">STUDENT INFORMATION</h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-3">
+          <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl border-2 border-gray-200 mb-8 shadow-md">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent mb-6">STUDENT INFORMATION</h3>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
                 <div>
-                  <span className="font-semibold text-gray-700">Student Name:</span>
-                  <p className="text-lg font-semibold text-blue-600">{receipt.studentName}</p>
+                  <span className="font-semibold text-gray-700 text-base">Student Name:</span>
+                  <p className="text-xl font-bold text-gray-800">{receipt.studentName}</p>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-700">Class:</span>
-                  <p className="text-lg font-semibold text-blue-600">{receipt.studentClass}</p>
+                  <span className="font-semibold text-gray-700 text-base">Class:</span>
+                  <p className="text-xl font-bold text-blue-600">{receipt.studentClass}</p>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <span className="font-semibold text-gray-700">Term:</span>
-                  <p className="text-lg font-semibold text-blue-600">{receipt.term}</p>
+                  <span className="font-semibold text-gray-700 text-base">Term:</span>
+                  <p className="text-xl font-bold text-green-600">{receipt.term}</p>
                 </div>
                 <div>
-                  <span className="font-semibold text-gray-700">Session:</span>
-                  <p className="text-lg font-semibold text-blue-600">{receipt.session}</p>
+                  <span className="font-semibold text-gray-700 text-base">Session:</span>
+                  <p className="text-xl font-bold text-purple-600">{receipt.session}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Payment Details */}
-          <div className="bg-gradient-to-r from-orange-50 to-blue-50 p-6 rounded-lg border-2 border-orange-200 mb-8">
-            <h3 className="text-xl font-bold text-orange-600 mb-4">PAYMENT DETAILS</h3>
-            <div className="grid grid-cols-2 gap-6">
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-xl border-2 border-green-200 mb-8 shadow-md">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent mb-6">PAYMENT DETAILS</h3>
+            <div className="grid grid-cols-2 gap-8">
               <div>
-                <span className="font-semibold text-gray-700">Payment Date:</span>
-                <p className="text-lg font-semibold text-orange-600">{formatDate(receipt.paymentDate)}</p>
+                <span className="font-semibold text-gray-700 text-base">Payment Date:</span>
+                <p className="text-xl font-bold text-green-600">{formatDate(receipt.paymentDate)}</p>
               </div>
               <div>
-                <span className="font-semibold text-gray-700">Payment For:</span>
-                <p className="text-lg font-semibold text-orange-600">{receipt.description || 'School Fees'}</p>
+                <span className="font-semibold text-gray-700 text-base">Payment For:</span>
+                <p className="text-xl font-bold text-blue-600">{receipt.description || 'School Fees'}</p>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="border-t-2 border-gray-300 pt-6">
+          <div className="border-t-2 border-gray-300 pt-8">
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <div className="border-t border-gray-400 pt-2 mt-8">
-                  <p className="text-sm font-semibold">Authorized Signature</p>
-                  <p className="text-xs text-gray-500">BAYHOOD PREPARATORY SCHOOL</p>
+                <div className="border-t-2 border-gray-400 pt-4 mt-12">
+                  <p className="text-base font-bold text-gray-700">Authorized Signature</p>
+                  <p className="text-sm text-gray-500 font-medium">BAYHOOD PREPARATORY SCHOOL</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* School Motto */}
-          <div className="text-center mt-8 p-4 bg-gradient-to-r from-orange-500 to-blue-600 text-white rounded-lg">
-            <p className="font-bold text-lg">"Excellence is Our Standard"</p>
+          <div className="text-center mt-8 p-6 bg-gradient-to-r from-blue-600 via-green-500 to-purple-600 text-white rounded-xl shadow-lg">
+            <p className="font-bold text-xl">"Excellence is Our Standard"</p>
           </div>
         </CardContent>
       </Card>

@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SimpleReceiptForm from './SimpleReceiptForm';
 import ReceiptCard from './ReceiptCard';
+import DetailedReceiptCard from './DetailedReceiptCard';
 import ReceiptTable from './ReceiptTable';
 import { Receipt } from '@/types/receipt';
 import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
@@ -29,6 +29,7 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [currentView, setCurrentView] = useState<'generate' | 'view'>('generate');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const [showDetailedReceipt, setShowDetailedReceipt] = useState(false);
 
   // Load receipts from Supabase on component mount
   useEffect(() => {
@@ -169,6 +170,12 @@ const Dashboard = ({ user }: DashboardProps) => {
     setCurrentView('generate');
   };
 
+  const handleShowDetailedReceipt = () => {
+    setShowDetailedReceipt(true);
+    setCurrentReceipt(null);
+    setCurrentView('generate');
+  };
+
   // Calculate stats
   const totalAmount = allReceipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
   const thisMonth = allReceipts.filter(r => {
@@ -202,10 +209,13 @@ const Dashboard = ({ user }: DashboardProps) => {
             <div className="hidden lg:flex items-center space-x-6">
               <div className="flex space-x-3">
                 <Button
-                  onClick={() => setCurrentView('generate')}
-                  variant={currentView === 'generate' ? 'default' : 'outline'}
+                  onClick={() => {
+                    setCurrentView('generate');
+                    setShowDetailedReceipt(false);
+                  }}
+                  variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
                   className={`border-2 font-semibold ${
-                    currentView === 'generate' 
+                    currentView === 'generate' && !showDetailedReceipt
                       ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
                       : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
@@ -214,7 +224,22 @@ const Dashboard = ({ user }: DashboardProps) => {
                   Generate Receipt
                 </Button>
                 <Button
-                  onClick={() => setCurrentView('view')}
+                  onClick={handleShowDetailedReceipt}
+                  variant={showDetailedReceipt ? 'default' : 'outline'}
+                  className={`border-2 font-semibold ${
+                    showDetailedReceipt
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' 
+                      : 'border-purple-300 text-purple-700 hover:bg-purple-50'
+                  }`}
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Fee Receipt
+                </Button>
+                <Button
+                  onClick={() => {
+                    setCurrentView('view');
+                    setShowDetailedReceipt(false);
+                  }}
                   variant={currentView === 'view' ? 'default' : 'outline'}
                   className={`border-2 font-semibold ${
                     currentView === 'view' 
@@ -261,11 +286,12 @@ const Dashboard = ({ user }: DashboardProps) => {
                   <Button
                     onClick={() => {
                       setCurrentView('generate');
+                      setShowDetailedReceipt(false);
                       setMobileMenuOpen(false);
                     }}
-                    variant={currentView === 'generate' ? 'default' : 'outline'}
+                    variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
                     className={`flex-1 text-xs ${
-                      currentView === 'generate' 
+                      currentView === 'generate' && !showDetailedReceipt
                         ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white' 
                         : 'border-gray-300 text-gray-700'
                     }`}
@@ -275,7 +301,23 @@ const Dashboard = ({ user }: DashboardProps) => {
                   </Button>
                   <Button
                     onClick={() => {
+                      handleShowDetailedReceipt();
+                      setMobileMenuOpen(false);
+                    }}
+                    variant={showDetailedReceipt ? 'default' : 'outline'}
+                    className={`flex-1 text-xs ${
+                      showDetailedReceipt
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white' 
+                        : 'border-purple-300 text-purple-700'
+                    }`}
+                  >
+                    <DollarSign className="w-3 h-3 mr-1" />
+                    Fee
+                  </Button>
+                  <Button
+                    onClick={() => {
                       setCurrentView('view');
+                      setShowDetailedReceipt(false);
                       setMobileMenuOpen(false);
                     }}
                     variant={currentView === 'view' ? 'default' : 'outline'}
@@ -358,7 +400,9 @@ const Dashboard = ({ user }: DashboardProps) => {
         </div>
 
         {/* Main Content - responsive */}
-        {currentReceipt ? (
+        {showDetailedReceipt ? (
+          <DetailedReceiptCard onBack={() => setShowDetailedReceipt(false)} />
+        ) : currentReceipt ? (
           <ReceiptCard 
             receipt={currentReceipt} 
             onEdit={() => handleEditReceipt(currentReceipt)}

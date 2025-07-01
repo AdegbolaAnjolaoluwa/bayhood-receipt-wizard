@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,8 +57,19 @@ const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
   ];
 
   const feeTypeOptions = [
-    'Tuition', 'PTA Dues', 'Uniforms', 'Feeding', 'Exam Fees', 
-    'Transport', 'Maintenance Levy', 'Sports Levy', 'ICT Levy'
+    'Tuition',
+    'PTA Dues',
+    'Uniforms',
+    'Textbook and Stationery',
+    'Development Fee',
+    'Late Pickup Fee',
+    'Registration Fee',
+    'Weekend Childcare Fee',
+    'Lesson Fee',
+    'Dailycare Service Fee',
+    'Sportwear',
+    'Friday Wear',
+    'Computer Classes'
   ];
 
   const paymentMethods = ['Cash', 'POS', 'Bank Transfer', 'Cheque'];

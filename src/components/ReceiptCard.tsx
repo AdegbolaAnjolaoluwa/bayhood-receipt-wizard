@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
@@ -16,141 +17,160 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
   const handleDownloadPDF = () => {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
     
     // Load and add the logo
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = function() {
-      // Add logo centered at the top - made much larger
-      const logoWidth = 80;
-      const logoHeight = 80;
+      // Add logo centered at the top
+      const logoWidth = 60;
+      const logoHeight = 60;
       const logoX = (pageWidth - logoWidth) / 2;
-      pdf.addImage(img, 'PNG', logoX, 10, logoWidth, logoHeight);
+      pdf.addImage(img, 'PNG', logoX, 15, logoWidth, logoHeight);
       
-      // School contact information below logo
+      // School name and tagline
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('BAYHOOD PREPARATORY SCHOOL', pageWidth/2, 85, { align: 'center' });
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'bold');
+      pdf.text('CRECHE | PRESCHOOL | AFTER SCHOOL', pageWidth/2, 95, { align: 'center' });
+      
+      // School details
       pdf.setFontSize(10);
-      pdf.setTextColor(75, 85, 99); // Gray color
-      pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 100, { align: 'center' });
-      pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 107, { align: 'center' });
-      pdf.text('Phone: 0809 811 2378', pageWidth/2, 114, { align: 'center' });
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Crèche | Preschool | Nursery | Afterschool', pageWidth/2, 105, { align: 'center' });
+      pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, 112, { align: 'center' });
+      pdf.text('Phone: 0809 811 2378', pageWidth/2, 119, { align: 'center' });
       
-      // Add a decorative border line
-      pdf.setDrawColor(251, 146, 60); // Orange color
-      pdf.setLineWidth(2);
-      pdf.line(15, 120, pageWidth - 15, 120);
+      // Horizontal line
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.line(20, 130, pageWidth - 20, 130);
       
-      // Receipt Title with colorful background
-      pdf.setFillColor(251, 146, 60); // Orange background
-      pdf.roundedRect(15, 125, pageWidth - 30, 18, 3, 3, 'F');
+      // Receipt title and amount section
       pdf.setFontSize(18);
-      pdf.setTextColor(255, 255, 255); // White text
-      pdf.text('OFFICIAL RECEIPT', pageWidth/2, 137, { align: 'center' });
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'bold');
+      pdf.text('OFFICIAL RECEIPT', 20, 150);
       
-      // Receipt details section with blue background
-      pdf.setFillColor(219, 234, 254); // Light blue background
-      pdf.roundedRect(15, 150, (pageWidth - 30) * 0.6, 35, 3, 3, 'F');
-      
-      pdf.setFontSize(12);
-      pdf.setTextColor(37, 99, 235); // Blue text
-      pdf.text('Receipt Details:', 20, 160);
-      pdf.setFontSize(10);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Receipt No: ${receipt.receiptNumber}`, 20, 170);
-      pdf.text(`Date Issued: ${formatDate(receipt.createdAt)}`, 20, 178);
-      
-      // Amount box with orange styling
+      // Amount box on the right
       const amountBoxX = pageWidth - 80;
-      pdf.setFillColor(254, 215, 170); // Light orange background
-      pdf.roundedRect(amountBoxX, 150, 65, 35, 3, 3, 'F');
-      pdf.setDrawColor(251, 146, 60); // Orange border
-      pdf.setLineWidth(2);
-      pdf.roundedRect(amountBoxX, 150, 65, 35, 3, 3, 'S');
+      const amountBoxY = 140;
+      pdf.setFillColor(173, 216, 230); // Light blue
+      pdf.roundedRect(amountBoxX, amountBoxY, 60, 25, 5, 5, 'F');
       
       pdf.setFontSize(10);
-      pdf.setTextColor(251, 146, 60); // Orange text
-      pdf.text('AMOUNT PAID', amountBoxX + 32.5, 160, { align: 'center' });
-      pdf.setFontSize(14);
-      pdf.setFont(undefined, 'bold');
-      pdf.text(formatCurrency(receipt.amountPaid), amountBoxX + 32.5, 175, { align: 'center' });
-      pdf.setFont(undefined, 'normal');
-      
-      // Student Information section with gradient-like background
-      pdf.setFillColor(243, 244, 246); // Light gray background
-      pdf.roundedRect(15, 195, pageWidth - 30, 50, 3, 3, 'F');
-      
-      pdf.setFontSize(14);
-      pdf.setTextColor(37, 99, 235); // Blue color
-      pdf.setFont(undefined, 'bold');
-      pdf.text('STUDENT INFORMATION', 20, 210);
-      pdf.setFont(undefined, 'normal');
-      
-      pdf.setFontSize(11);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Student Name:', 20, 220);
       pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(37, 99, 235);
-      pdf.text(receipt.studentName, 55, 220);
+      pdf.text('AMOUNT PAID', amountBoxX + 30, amountBoxY + 8, { align: 'center' });
       
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Class:', 20, 230);
+      pdf.setFontSize(16);
+      pdf.setTextColor(34, 197, 94); // Green
       pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(37, 99, 235);
-      pdf.text(receipt.studentClass, 40, 230);
+      pdf.text(formatCurrency(receipt.amountPaid), amountBoxX + 30, amountBoxY + 20, { align: 'center' });
       
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Term:', pageWidth - 80, 220);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(37, 99, 235);
-      pdf.text(receipt.term, pageWidth - 60, 220);
-      
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Session:', pageWidth - 80, 230);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(37, 99, 235);
-      pdf.text(receipt.session, pageWidth - 50, 230);
-      
-      // Payment Details section with orange styling
-      pdf.setFillColor(254, 215, 170); // Light orange background
-      pdf.roundedRect(15, 255, pageWidth - 30, 40, 3, 3, 'F');
-      
-      pdf.setFontSize(14);
-      pdf.setTextColor(251, 146, 60); // Orange color
-      pdf.setFont(undefined, 'bold');
-      pdf.text('PAYMENT DETAILS', 20, 270);
-      pdf.setFont(undefined, 'normal');
-      
-      pdf.setFontSize(11);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Payment Date:', 20, 280);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(251, 146, 60);
-      pdf.text(formatDate(receipt.paymentDate), 60, 280);
-      
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Payment For:', 20, 288);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(251, 146, 60);
-      pdf.text(receipt.description || 'School Fees', 58, 288);
-      
-      // School Motto with blue gradient-like background
-      pdf.setFillColor(37, 99, 235); // Blue background
-      pdf.roundedRect(15, 305, pageWidth - 30, 15, 3, 3, 'F');
+      // Receipt details
       pdf.setFontSize(12);
-      pdf.setTextColor(255, 255, 255); // White text
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Receipt No:', 20, 170);
+      pdf.setTextColor(0, 0, 0);
       pdf.setFont(undefined, 'bold');
-      pdf.text('"Excellence is Our Standard"', pageWidth/2, 315, { align: 'center' });
+      pdf.text(receipt.receiptNumber, 55, 170);
       
-      // Save the PDF with student name and class
-      const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.studentClass.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
+      pdf.setFontSize(12);
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Date Issued:', 20, 180);
+      pdf.setTextColor(34, 197, 94); // Green
+      pdf.setFont(undefined, 'bold');
+      pdf.text(formatDate(receipt.createdAt), 60, 180);
+      
+      // Student Information section
+      pdf.setFillColor(240, 248, 255); // Very light blue
+      pdf.roundedRect(20, 195, pageWidth - 40, 50, 5, 5, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'bold');
+      pdf.text('STUDENT INFORMATION', 25, 210);
+      
+      // Student details in grid
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Student Name:', 25, 225);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(receipt.studentName, 25, 233);
+      
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Term:', pageWidth - 80, 225);
+      pdf.setTextColor(34, 197, 94); // Green
+      pdf.setFont(undefined, 'bold');
+      pdf.text(receipt.term, pageWidth - 80, 233);
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Class:', 25, 245);
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'bold');
+      pdf.text(receipt.studentClass, 25, 253);
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Session:', pageWidth - 80, 245);
+      pdf.setTextColor(147, 51, 234); // Purple
+      pdf.setFont(undefined, 'bold');
+      pdf.text(receipt.session, pageWidth - 80, 253);
+      
+      // Payment Details section
+      pdf.setFillColor(240, 253, 244); // Very light green
+      pdf.roundedRect(20, 265, pageWidth - 40, 50, 5, 5, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(34, 197, 94); // Green
+      pdf.setFont(undefined, 'bold');
+      pdf.text('PAYMENT DETAILS', 25, 280);
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Payment Date:', 25, 295);
+      pdf.setTextColor(34, 197, 94); // Green
+      pdf.setFont(undefined, 'bold');
+      pdf.text(formatDate(receipt.paymentDate), 25, 303);
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Payment For:', 25, 315);
+      pdf.setTextColor(59, 130, 246); // Blue
+      pdf.setFont(undefined, 'bold');
+      
+      // Handle long descriptions by wrapping text
+      const description = receipt.description || 'School Fees';
+      const maxWidth = pageWidth - 50;
+      const lines = pdf.splitTextToSize(description, maxWidth);
+      pdf.text(lines, 25, 323);
+      
+      // Footer signature line
+      pdf.setDrawColor(100, 100, 100);
+      pdf.setLineWidth(0.5);
+      pdf.line(120, 350, 180, 350);
+      pdf.setFontSize(9);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('Authorized Signature', 150, 360, { align: 'center' });
+      
+      // Save the PDF
+      const fileName = `Receipt_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
       pdf.save(fileName);
     };
     
-    // Set the image source to the new colorful logo
     img.src = '/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png';
   };
 
@@ -170,122 +190,151 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center print:hidden">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">Receipt Preview</h2>
-        <div className="space-x-4">
+    <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-4">
+      {/* Action buttons - responsive */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+          Receipt Preview
+        </h2>
+        <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
           <Button 
             onClick={onEdit}
             variant="outline"
-            className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
+            className="flex-1 sm:flex-none border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold text-xs sm:text-sm"
           >
             Edit Receipt
           </Button>
           <Button 
             onClick={handleDownloadPDF}
-            className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold shadow-lg"
+            className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold shadow-lg text-xs sm:text-sm"
           >
             Download PDF
           </Button>
           <Button 
             onClick={handlePrint}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg"
+            className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg text-xs sm:text-sm"
           >
             Print Receipt
           </Button>
         </div>
       </div>
 
-      <Card className="max-w-4xl mx-auto bg-white border-0 shadow-2xl print:border-none print:shadow-none">
-        <CardContent className="p-8">
+      {/* Receipt Card - fully responsive */}
+      <Card className="w-full bg-white border-0 shadow-xl print:border-none print:shadow-none print:max-w-none">
+        <CardContent className="p-4 sm:p-6 lg:p-8">
           {/* School Header */}
-          <div className="text-center border-b-4 border-gradient-to-r from-blue-500 to-green-500 pb-8 mb-8">
-            <div className="flex justify-center items-center space-x-4 mb-6">
+          <div className="text-center pb-6 sm:pb-8 mb-6 sm:mb-8 border-b border-gray-200">
+            <div className="flex justify-center items-center mb-4 sm:mb-6">
               <img 
                 src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
                 alt="Bayhood Preparatory School Logo" 
-                className="h-32 w-auto"
+                className="h-16 sm:h-20 lg:h-24 w-auto"
               />
             </div>
-            <p className="text-gray-600 mb-2 font-medium">Crèche | Preschool | Nursery | Afterschool</p>
-            <p className="text-sm text-gray-500 mb-1">House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos</p>
-            <p className="text-sm text-gray-500">Phone: 0809 811 2378</p>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+              BAYHOOD PREPARATORY SCHOOL
+            </h1>
+            <p className="text-sm sm:text-base font-bold text-blue-600 mb-3">
+              CRECHE | PRESCHOOL | AFTER SCHOOL
+            </p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-1">
+              Crèche | Preschool | Nursery | Afterschool
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500 mb-1">
+              House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">
+              Phone: 0809 811 2378
+            </p>
           </div>
 
-          {/* Receipt Header */}
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent mb-4">OFFICIAL RECEIPT</h2>
-              <div className="space-y-3">
-                <p className="text-lg"><span className="font-semibold text-gray-700">Receipt No:</span> <span className="font-bold text-blue-600">{receipt.receiptNumber}</span></p>
-                <p className="text-lg"><span className="font-semibold text-gray-700">Date Issued:</span> <span className="font-bold text-green-600">{formatDate(receipt.createdAt)}</span></p>
+          {/* Receipt Header - responsive grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-4">
+                OFFICIAL RECEIPT
+              </h2>
+              <div className="space-y-2 sm:space-y-3">
+                <p className="text-sm sm:text-base">
+                  <span className="font-medium text-blue-600">Receipt No:</span>{' '}
+                  <span className="font-bold text-gray-800">{receipt.receiptNumber}</span>
+                </p>
+                <p className="text-sm sm:text-base">
+                  <span className="font-medium text-blue-600">Date Issued:</span>{' '}
+                  <span className="font-bold text-green-600">{formatDate(receipt.createdAt)}</span>
+                </p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="bg-gradient-to-r from-blue-100 via-green-100 to-blue-100 p-6 rounded-xl border-2 border-blue-200 shadow-lg">
-                <h3 className="text-xl font-bold text-gray-700 mb-3">AMOUNT PAID</h3>
-                <p className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{formatCurrency(receipt.amountPaid)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Student Details */}
-          <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl border-2 border-gray-200 mb-8 shadow-md">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent mb-6">STUDENT INFORMATION</h3>
-            <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div>
-                  <span className="font-semibold text-gray-700 text-base">Student Name:</span>
-                  <p className="text-xl font-bold text-gray-800">{receipt.studentName}</p>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-700 text-base">Class:</span>
-                  <p className="text-xl font-bold text-blue-600">{receipt.studentClass}</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <span className="font-semibold text-gray-700 text-base">Term:</span>
-                  <p className="text-xl font-bold text-green-600">{receipt.term}</p>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-700 text-base">Session:</span>
-                  <p className="text-xl font-bold text-purple-600">{receipt.session}</p>
-                </div>
+            <div className="flex justify-start lg:justify-end">
+              <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 sm:p-6 rounded-xl border-2 border-blue-300 shadow-lg w-full max-w-xs">
+                <h3 className="text-sm sm:text-base font-bold text-gray-700 mb-2 text-center">
+                  AMOUNT PAID
+                </h3>
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 text-center">
+                  {formatCurrency(receipt.amountPaid)}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Payment Details */}
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-xl border-2 border-green-200 mb-8 shadow-md">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent mb-6">PAYMENT DETAILS</h3>
-            <div className="grid grid-cols-2 gap-8">
+          {/* Student Information - responsive */}
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 sm:p-6 lg:p-8 rounded-xl border border-blue-200 mb-6 sm:mb-8 shadow-sm">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 mb-4 sm:mb-6">
+              STUDENT INFORMATION
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+              <div className="space-y-3 sm:space-y-4">
+                <div>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base block">Student Name:</span>
+                  <p className="text-lg sm:text-xl font-bold text-gray-800 break-words">{receipt.studentName}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base block">Class:</span>
+                  <p className="text-lg sm:text-xl font-bold text-blue-600">{receipt.studentClass}</p>
+                </div>
+              </div>
+              <div className="space-y-3 sm:space-y-4">
+                <div>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base block">Term:</span>
+                  <p className="text-lg sm:text-xl font-bold text-green-600">{receipt.term}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 text-sm sm:text-base block">Session:</span>
+                  <p className="text-lg sm:text-xl font-bold text-purple-600">{receipt.session}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Details - responsive */}
+          <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 sm:p-6 lg:p-8 rounded-xl border border-green-200 mb-6 sm:mb-8 shadow-sm">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-4 sm:mb-6">
+              PAYMENT DETAILS
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               <div>
-                <span className="font-semibold text-gray-700 text-base">Payment Date:</span>
-                <p className="text-xl font-bold text-green-600">{formatDate(receipt.paymentDate)}</p>
+                <span className="font-medium text-gray-700 text-sm sm:text-base block">Payment Date:</span>
+                <p className="text-lg sm:text-xl font-bold text-green-600">{formatDate(receipt.paymentDate)}</p>
               </div>
               <div>
-                <span className="font-semibold text-gray-700 text-base">Payment For:</span>
-                <p className="text-xl font-bold text-blue-600">{receipt.description || 'School Fees'}</p>
+                <span className="font-medium text-gray-700 text-sm sm:text-base block">Payment For:</span>
+                <p className="text-sm sm:text-base lg:text-lg font-bold text-blue-600 break-words">
+                  {receipt.description || 'School Fees'}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="border-t-2 border-gray-300 pt-8">
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <div className="border-t-2 border-gray-400 pt-4 mt-12">
-                  <p className="text-base font-bold text-gray-700">Authorized Signature</p>
-                  <p className="text-sm text-gray-500 font-medium">BAYHOOD PREPARATORY SCHOOL</p>
+          {/* Footer - responsive */}
+          <div className="border-t-2 border-gray-300 pt-6 sm:pt-8">
+            <div className="flex justify-center sm:justify-start">
+              <div className="text-center sm:text-left">
+                <div className="border-t-2 border-gray-400 pt-4 mt-8 sm:mt-12 w-32 sm:w-40">
+                  <p className="text-sm sm:text-base font-bold text-gray-700">Authorized Signature</p>
+                  <p className="text-xs sm:text-sm text-gray-500 font-medium">BAYHOOD PREPARATORY SCHOOL</p>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* School Motto */}
-          <div className="text-center mt-8 p-6 bg-gradient-to-r from-blue-600 via-green-500 to-purple-600 text-white rounded-xl shadow-lg">
-            <p className="font-bold text-xl">"Excellence is Our Standard"</p>
           </div>
         </CardContent>
       </Card>

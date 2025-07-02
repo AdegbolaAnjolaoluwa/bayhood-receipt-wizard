@@ -69,174 +69,168 @@ const DetailedReceiptCard = ({
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = function() {
-      // Logo
-      const logoSize = 35;
+      // Logo centered
+      const logoSize = 40;
       const logoX = (pageWidth - logoSize) / 2;
       pdf.addImage(img, 'PNG', logoX, yPosition, logoSize, logoSize);
-      yPosition += 45;
+      yPosition += 50;
       
-      // School Name
-      pdf.setFontSize(18);
+      // School Name - Large Black
+      pdf.setFontSize(22);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(0, 0, 0);
       pdf.text('BAYHOOD PREPARATORY SCHOOL', pageWidth/2, yPosition, { align: 'center' });
+      yPosition += 10;
+      
+      // Tagline - Blue
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(59, 130, 246);
+      pdf.text('CRECHE | PRESCHOOL | AFTER SCHOOL', pageWidth/2, yPosition, { align: 'center' });
       yPosition += 8;
       
-      // School Details
-      pdf.setFontSize(9);
+      // Description line
+      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 100, 100);
+      pdf.text('Creche | Preschool | Nursery | Afterschool', pageWidth/2, yPosition, { align: 'center' });
+      yPosition += 5;
+      
+      // Address and contact
       pdf.text('House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos', pageWidth/2, yPosition, { align: 'center' });
       yPosition += 5;
       pdf.text('Phone: 0809 811 2378', pageWidth/2, yPosition, { align: 'center' });
+      yPosition += 20;
+      
+      // Light gray line
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.line(20, yPosition, pageWidth - 20, yPosition);
       yPosition += 15;
       
-      // Receipt Title
-      pdf.setFontSize(16);
+      // Official Receipt and Amount Box layout
+      pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(59, 130, 246);
-      pdf.text('OFFICIAL FEE RECEIPT', pageWidth/2, yPosition, { align: 'center' });
-      yPosition += 15;
+      pdf.text('OFFICIAL RECEIPT', 25, yPosition);
       
-      // Receipt Details Box
+      // Amount Paid Box (light blue background)
+      const boxWidth = 80;
+      const boxHeight = 25;
+      const boxX = pageWidth - boxWidth - 25;
+      const boxY = yPosition - 15;
+      
+      pdf.setFillColor(224, 242, 254);
+      pdf.roundedRect(boxX, boxY, boxWidth, boxHeight, 5, 5, 'F');
+      pdf.setDrawColor(190, 227, 248);
+      pdf.roundedRect(boxX, boxY, boxWidth, boxHeight, 5, 5, 'S');
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(75, 85, 99);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('AMOUNT PAID', boxX + boxWidth/2, boxY + 8, { align: 'center' });
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(34, 197, 94);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(formatCurrency(totalAmount), boxX + boxWidth/2, boxY + 20, { align: 'center' });
+      
+      yPosition += 20;
+      
+      // Receipt Details - Blue labels
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(59, 130, 246);
+      
+      pdf.text('Receipt No:', 25, yPosition);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(receiptNumber, 70, yPosition);
+      
+      pdf.setTextColor(59, 130, 246);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Date Issued:', pageWidth - 100, yPosition);
+      pdf.setTextColor(34, 197, 94);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(currentDate, pageWidth - 50, yPosition);
+      
+      yPosition += 25;
+      
+      // Student Information Box
       pdf.setFillColor(248, 250, 252);
-      pdf.roundedRect(15, yPosition, pageWidth - 30, 35, 3, 3, 'F');
+      const studentBoxHeight = 60;
+      pdf.roundedRect(25, yPosition, pageWidth - 50, studentBoxHeight, 5, 5, 'F');
       pdf.setDrawColor(226, 232, 240);
-      pdf.roundedRect(15, yPosition, pageWidth - 30, 35, 3, 3, 'S');
+      pdf.roundedRect(25, yPosition, pageWidth - 50, studentBoxHeight, 5, 5, 'S');
       
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(59, 130, 246);
+      pdf.text('STUDENT INFORMATION', 30, yPosition + 15);
+      
+      // Student details in grid
       pdf.setFontSize(10);
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
       
       // Left column
-      pdf.text('Receipt No:', 20, yPosition + 10);
+      pdf.text('Student Name:', 30, yPosition + 30);
+      pdf.setTextColor(59, 130, 246);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(receiptNumber, 50, yPosition + 10);
+      pdf.text(studentName, 30, yPosition + 40);
       
+      pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Date:', 20, yPosition + 20);
+      pdf.text('Class:', 30, yPosition + 50);
+      pdf.setTextColor(59, 130, 246);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(currentDate, 50, yPosition + 20);
-      
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Payment Method:', 20, yPosition + 30);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(paymentMethod, 60, yPosition + 30);
+      pdf.text(studentClass, 30, yPosition + 60);
       
       // Right column
+      pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Issued By:', pageWidth - 80, yPosition + 10);
+      pdf.text('Term:', pageWidth - 100, yPosition + 30);
+      pdf.setTextColor(34, 197, 94);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(issuedBy, pageWidth - 50, yPosition + 10);
-      
-      yPosition += 50;
-      
-      // Student Information
-      pdf.setFillColor(59, 130, 246);
-      pdf.rect(15, yPosition, pageWidth - 30, 8, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('STUDENT INFORMATION', 20, yPosition + 6);
-      yPosition += 15;
+      pdf.text(term, pageWidth - 100, yPosition + 40);
       
       pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      
-      // Student details in two columns
-      pdf.text('Student Name:', 20, yPosition);
+      pdf.text('Session:', pageWidth - 100, yPosition + 50);
+      pdf.setTextColor(147, 51, 234);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(studentName, 55, yPosition);
+      pdf.text(session, pageWidth - 100, yPosition + 60);
       
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Class:', pageWidth - 80, yPosition);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(studentClass, pageWidth - 55, yPosition);
-      yPosition += 10;
+      yPosition += studentBoxHeight + 20;
       
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Term:', 20, yPosition);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(term, 40, yPosition);
-      
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Session:', pageWidth - 80, yPosition);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(session, pageWidth - 50, yPosition);
-      yPosition += 20;
-      
-      // Fee Breakdown
-      pdf.setFillColor(34, 197, 94);
-      pdf.rect(15, yPosition, pageWidth - 30, 8, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('FEE BREAKDOWN', 20, yPosition + 6);
-      yPosition += 15;
-      
-      // Table headers
-      pdf.setFillColor(248, 250, 252);
-      pdf.rect(15, yPosition, pageWidth - 30, 8, 'F');
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(9);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('S/N', 20, yPosition + 6);
-      pdf.text('DESCRIPTION', 35, yPosition + 6);
-      pdf.text('AMOUNT (₦)', pageWidth - 40, yPosition + 6);
-      yPosition += 12;
-      
-      // Fee items
-      pdf.setFont('helvetica', 'normal');
-      feeCategories.forEach((fee, index) => {
-        if (yPosition > 250) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-        
-        pdf.text((index + 1).toString(), 20, yPosition);
-        pdf.text(fee.name, 35, yPosition);
-        pdf.text(fee.amount.toLocaleString(), pageWidth - 40, yPosition, { align: 'right' });
-        yPosition += 8;
-      });
-      
-      yPosition += 5;
-      
-      // Total
-      pdf.setDrawColor(0, 0, 0);
-      pdf.line(15, yPosition, pageWidth - 15, yPosition);
-      yPosition += 10;
-      
-      pdf.setFillColor(34, 197, 94);
-      pdf.rect(15, yPosition, pageWidth - 30, 12, 'F');
-      pdf.setTextColor(255, 255, 255);
+      // Payment Description
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('TOTAL AMOUNT PAID:', 20, yPosition + 8);
-      pdf.text(formatCurrency(totalAmount), pageWidth - 20, yPosition + 8, { align: 'right' });
-      yPosition += 20;
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Payment Description:', 25, yPosition);
+      yPosition += 10;
       
-      // Status
-      pdf.setTextColor(34, 197, 94);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('✓ PAID IN FULL', pageWidth/2, yPosition, { align: 'center' });
-      yPosition += 15;
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(75, 85, 99);
+      const description = `${studentName} - Tuition: ₦${totalAmount.toLocaleString()} | Discount Applied: 0% | Payment Method: ${paymentMethod} | Status: PAID IN FULL`;
+      const descLines = pdf.splitTextToSize(description, pageWidth - 50);
+      pdf.text(descLines, 25, yPosition);
+      
+      yPosition += 30;
       
       // Footer
       pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(9);
+      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'italic');
-      pdf.text('"Thank you for your payment. Education is the best investment."', pageWidth/2, yPosition, { align: 'center' });
-      yPosition += 8;
-      pdf.text('School Motto: "Discipline, Knowledge, Excellence."', pageWidth/2, yPosition, { align: 'center' });
+      pdf.text('Thank you for your payment. Keep this receipt for your records.', pageWidth/2, yPosition, { align: 'center' });
       
       // Save
       const fileName = `Receipt_${studentName.replace(/\s+/g, '_')}_${receiptNumber}.pdf`;
       pdf.save(fileName);
     };
     
-    img.src = '/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png';
+    img.src = '/lovable-uploads/ca706d69-cfe9-4cc0-80e4-21dcb229992a.png';
   };
 
   return (
@@ -274,124 +268,94 @@ const DetailedReceiptCard = ({
         <CardContent className="p-6 sm:p-8 lg:p-12">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-6">
               <img 
-                src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
+                src="/lovable-uploads/ca706d69-cfe9-4cc0-80e4-21dcb229992a.png" 
                 alt="Bayhood Preparatory School Logo" 
                 className="h-16 sm:h-20 w-auto"
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
               BAYHOOD PREPARATORY SCHOOL
             </h1>
-            <div className="text-xs sm:text-sm text-slate-600 space-y-1">
+            <p className="text-sm sm:text-base font-bold text-blue-600 mb-4">
+              CRECHE | PRESCHOOL | AFTER SCHOOL
+            </p>
+            <div className="text-xs sm:text-sm text-gray-600 space-y-1">
+              <p>Creche | Preschool | Nursery | Afterschool</p>
               <p>House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos</p>
               <p>Phone: 0809 811 2378</p>
             </div>
           </div>
 
-          {/* Receipt Title */}
-          <div className="text-center mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-blue-600 bg-blue-50 py-3 px-6 rounded-lg inline-block">
-              OFFICIAL FEE RECEIPT
-            </h2>
+          {/* Divider */}
+          <div className="border-t border-gray-300 mb-8"></div>
+
+          {/* Receipt Header with Amount */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-blue-600">OFFICIAL RECEIPT</h2>
+            </div>
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center min-w-[200px]">
+              <p className="text-sm font-bold text-gray-700 mb-2">AMOUNT PAID</p>
+              <p className="text-3xl sm:text-4xl font-bold text-green-600">{formatCurrency(totalAmount)}</p>
+            </div>
           </div>
 
           {/* Receipt Details */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 sm:p-6 mb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <span className="block text-slate-600 font-medium text-sm mb-1">Receipt No:</span>
-                <span className="font-bold text-slate-900">{receiptNumber}</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-blue-600 font-medium text-base">Receipt No:</span>
+                <span className="font-bold text-slate-900 text-base">{receiptNumber}</span>
               </div>
-              <div>
-                <span className="block text-slate-600 font-medium text-sm mb-1">Date:</span>
-                <span className="font-bold text-slate-900">{currentDate}</span>
-              </div>
-              <div>
-                <span className="block text-slate-600 font-medium text-sm mb-1">Payment Method:</span>
-                <span className="font-bold text-slate-900">{paymentMethod}</span>
-              </div>
-              <div className="sm:col-start-2 lg:col-start-1">
-                <span className="block text-slate-600 font-medium text-sm mb-1">Issued By:</span>
-                <span className="font-bold text-slate-900">{issuedBy}</span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-blue-600 font-medium text-base">Date Issued:</span>
+                <span className="font-bold text-green-600 text-base">{currentDate}</span>
               </div>
             </div>
           </div>
 
           {/* Student Information */}
-          <div className="mb-8">
-            <div className="bg-blue-600 text-white p-3 rounded-t-lg">
-              <h3 className="font-bold text-lg">STUDENT INFORMATION</h3>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 border-t-0 rounded-b-lg p-4 sm:p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-8">
+            <h3 className="text-xl font-bold text-blue-600 mb-6">STUDENT INFORMATION</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Student Name:</span>
-                  <span className="font-bold text-blue-700 text-lg">{studentName}</span>
+                  <span className="font-bold text-blue-600 text-lg">{studentName}</span>
                 </div>
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Class:</span>
-                  <span className="font-bold text-blue-700 text-lg">{studentClass}</span>
+                  <span className="font-bold text-blue-600 text-lg">{studentClass}</span>
                 </div>
+              </div>
+              <div className="space-y-4">
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Term:</span>
-                  <span className="font-bold text-blue-700 text-lg">{term}</span>
+                  <span className="font-bold text-green-600 text-lg">{term}</span>
                 </div>
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Session:</span>
-                  <span className="font-bold text-blue-700 text-lg">{session}</span>
+                  <span className="font-bold text-purple-600 text-lg">{session}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Fee Breakdown */}
+          {/* Payment Description */}
           <div className="mb-8">
-            <div className="bg-green-600 text-white p-3 rounded-t-lg">
-              <h3 className="font-bold text-lg">FEE BREAKDOWN</h3>
-            </div>
-            <div className="bg-white border border-green-200 border-t-0 rounded-b-lg overflow-hidden">
-              {/* Table Header */}
-              <div className="bg-slate-100 border-b border-slate-200 p-3 grid grid-cols-12 gap-2 font-bold text-sm">
-                <div className="col-span-1 text-center">S/N</div>
-                <div className="col-span-7 sm:col-span-8">DESCRIPTION</div>
-                <div className="col-span-4 sm:col-span-3 text-right">AMOUNT (₦)</div>
-              </div>
-              
-              {/* Fee Items */}
-              {feeCategories.map((fee, index) => (
-                <div key={index} className="border-b border-slate-100 p-3 grid grid-cols-12 gap-2 hover:bg-slate-50 text-sm">
-                  <div className="col-span-1 text-center font-medium">{index + 1}</div>
-                  <div className="col-span-7 sm:col-span-8 font-medium">{fee.name}</div>
-                  <div className="col-span-4 sm:col-span-3 text-right font-bold">{fee.amount.toLocaleString()}</div>
-                </div>
-              ))}
-              
-              {/* Total */}
-              <div className="bg-green-600 text-white p-4 grid grid-cols-12 gap-2 font-bold text-lg">
-                <div className="col-span-8 sm:col-span-9">TOTAL AMOUNT PAID:</div>
-                <div className="col-span-4 sm:col-span-3 text-right">{formatCurrency(totalAmount)}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Status */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-6 py-3 rounded-lg border border-green-300">
-              <span className="text-2xl mr-2">✅</span>
-              <span className="font-bold text-lg">PAID IN FULL</span>
-            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-3">Payment Description:</h4>
+            <p className="text-slate-700 text-base leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
+              {studentName} - Tuition: ₦{totalAmount.toLocaleString()} | Discount Applied: 0% | Payment Method: {paymentMethod} | Status: PAID IN FULL
+            </p>
           </div>
 
           {/* Footer */}
-          <div className="text-center space-y-3 pt-8 border-t border-slate-200">
-            <p className="text-slate-700 italic text-sm sm:text-base">
-              "Thank you for your payment. Education is the best investment."
-            </p>
-            <p className="text-slate-600 italic text-xs sm:text-sm font-medium">
-              School Motto: "Discipline, Knowledge, Excellence."
-            </p>
+          <div className="text-center text-sm text-gray-500 italic">
+            Thank you for your payment. Keep this receipt for your records.
           </div>
         </CardContent>
       </Card>

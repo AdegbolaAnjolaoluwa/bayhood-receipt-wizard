@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useModernReceiptPDF } from '@/hooks/useModernReceiptPDF';
-import { Download, FileText } from 'lucide-react';
+import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
+import { Download, FileText, Image } from 'lucide-react';
 
 interface ReceiptData {
   payerName: string;
@@ -34,6 +35,7 @@ const ModernReceiptGenerator = () => {
   });
 
   const { generateModernPDF } = useModernReceiptPDF();
+  const { downloadReceiptAsPDF } = useReceiptImageToPDF();
 
   const generateReceiptNumber = () => {
     const timestamp = Date.now().toString().slice(-6);
@@ -64,6 +66,34 @@ const ModernReceiptGenerator = () => {
     }
     
     generateModernPDF(receiptData);
+  };
+
+  const handleDownloadPreviewAsPDF = async () => {
+    let finalReceiptNumber = receiptData.receiptNumber;
+    if (!finalReceiptNumber) {
+      finalReceiptNumber = generateReceiptNumber();
+      setReceiptData(prev => ({ ...prev, receiptNumber: finalReceiptNumber }));
+    }
+    
+    const fileName = `Receipt_Preview_${receiptData.payerName.replace(/\s+/g, '_')}_${finalReceiptNumber}.pdf`;
+    const success = await downloadReceiptAsPDF('receipt-preview', fileName);
+    
+    if (!success) {
+      // Fallback to showing an error or alternative action
+      console.error('Failed to generate PDF from preview');
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `₦${amount.toLocaleString()}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
   };
 
   const isFormValid = () => {
@@ -240,66 +270,158 @@ const ModernReceiptGenerator = () => {
             <CardTitle>Receipt Preview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-slate-50 rounded-lg p-6 mb-6">
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-bold text-blue-600">BAYHOOD PREPARATORY SCHOOL</h3>
-                <p className="text-sm text-slate-600">House 20, Diamond Estate, Rd 18, Idimu, Lagos</p>
-                <p className="text-sm text-slate-600">Phone: 0809 811 2378</p>
-              </div>
-              
-              <hr className="my-4" />
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="font-medium">Payer:</span>
-                  <span>{receiptData.payerName || 'Not specified'}</span>
+            {/* Full Professional Receipt Preview */}
+            <div 
+              id="receipt-preview" 
+              className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm"
+              style={{ minHeight: '500px' }}
+            >
+              {/* Header */}
+              <div className="text-center mb-6">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">BPS</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Amount:</span>
-                  <span className="font-bold text-green-600">
-                    ₦{receiptData.paymentAmount.toLocaleString()}
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  BAYHOOD PREPARATORY SCHOOL
+                </h1>
+                <p className="text-sm font-semibold text-blue-600 mb-2">
+                  CRECHE | PRESCHOOL | AFTER SCHOOL
+                </p>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>House 20, Diamond Estate, Rd 18, Idimu, Lagos 100275, Lagos</p>
+                  <p>Phone: 0809 811 2378</p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t-2 border-blue-600 mb-6"></div>
+
+              {/* Receipt Title */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h2 className="text-lg font-bold text-blue-600 text-center">
+                  OFFICIAL PAYMENT RECEIPT
+                </h2>
+              </div>
+
+              {/* Receipt Details */}
+              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                <div>
+                  <span className="text-gray-600">Receipt No:</span>
+                  <span className="font-bold ml-2">
+                    {receiptData.receiptNumber || 'Auto-generated'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Date:</span>
-                  <span>{receiptData.paymentDate}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Class:</span>
-                  <span>{receiptData.studentClass || 'Not specified'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Term:</span>
-                  <span>{receiptData.term || 'Not specified'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Session:</span>
-                  <span>{receiptData.session || 'Not specified'}</span>
+                <div className="text-right">
+                  <span className="text-gray-600">Date Issued:</span>
+                  <span className="font-bold ml-2">
+                    {formatDate(receiptData.paymentDate)}
+                  </span>
                 </div>
               </div>
-              
+
+              {/* Amount Box */}
+              <div className="bg-green-600 text-white rounded-lg p-4 mb-6 text-center">
+                <p className="text-sm font-semibold mb-1">AMOUNT PAID</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(receiptData.paymentAmount)}
+                </p>
+              </div>
+
+              {/* Payment Details */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h3 className="text-sm font-bold text-blue-600 mb-3">PAYMENT DETAILS</h3>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p className="text-gray-600">Payer Name:</p>
+                    <p className="font-semibold">{receiptData.payerName || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Session:</p>
+                    <p className="font-semibold">{receiptData.session || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Class:</p>
+                    <p className="font-semibold">{receiptData.studentClass || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Term:</p>
+                    <p className="font-semibold">{receiptData.term || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Purpose */}
               {receiptData.purpose && (
-                <div className="mt-4 p-3 bg-white rounded border">
-                  <p className="text-sm"><strong>Purpose:</strong> {receiptData.purpose}</p>
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-gray-900 mb-2">Purpose of Payment:</h4>
+                  <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 p-3 rounded border">
+                    {receiptData.purpose}
+                  </p>
                 </div>
               )}
+
+              {/* Custom Fields */}
+              {Object.entries(receiptData.customFields).some(([_, value]) => value.trim()) && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-gray-900 mb-2">Additional Details:</h4>
+                  <div className="text-xs space-y-1">
+                    {Object.entries(receiptData.customFields)
+                      .filter(([_, value]) => value.trim())
+                      .map(([key, value]) => (
+                        <p key={key}>
+                          <span className="font-semibold">
+                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                          </span>{' '}
+                          {value}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Status */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6 text-center">
+                <p className="text-sm font-bold text-green-800">✓ PAYMENT RECEIVED</p>
+              </div>
+
+              {/* Footer */}
+              <div className="text-center text-xs text-gray-500 space-y-1">
+                <p className="italic">Thank you for your payment. This receipt serves as proof of payment.</p>
+                <p className="italic">For inquiries, please contact the school administration.</p>
+              </div>
             </div>
 
-            <Button 
-              onClick={handleGenerateReceipt}
-              disabled={!isFormValid()}
-              className="w-full"
-              size="lg"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Generate PDF Receipt
-            </Button>
-            
-            {!isFormValid() && (
-              <p className="text-sm text-red-600 mt-2 text-center">
-                Please fill in all required fields to generate receipt
-              </p>
-            )}
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button 
+                onClick={handleDownloadPreviewAsPDF}
+                disabled={!isFormValid()}
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="lg"
+              >
+                <Image className="w-4 h-4 mr-2" />
+                Download Preview as PDF
+              </Button>
+              
+              <Button 
+                onClick={handleGenerateReceipt}
+                disabled={!isFormValid()}
+                className="w-full"
+                variant="outline"
+                size="lg"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Generate Programmatic PDF
+              </Button>
+              
+              {!isFormValid() && (
+                <p className="text-sm text-red-600 text-center">
+                  Please fill in all required fields to generate receipt
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

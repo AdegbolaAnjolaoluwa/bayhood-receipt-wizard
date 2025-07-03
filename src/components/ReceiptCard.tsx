@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
 import jsPDF from 'jspdf';
+import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -10,8 +11,19 @@ interface ReceiptCardProps {
 }
 
 const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
+  const { downloadReceiptAsPDF } = useReceiptImageToPDF();
+  
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPreviewAsPDF = async () => {
+    const fileName = `Receipt_Preview_${receipt.studentName.replace(/\s+/g, '_')}_${receipt.receiptNumber}.pdf`;
+    const success = await downloadReceiptAsPDF('receipt-preview', fileName);
+    
+    if (!success) {
+      console.error('Failed to generate PDF from preview');
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -182,10 +194,17 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             Edit Receipt
           </Button>
           <Button 
-            onClick={handleDownloadPDF}
+            onClick={handleDownloadPreviewAsPDF}
             className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base"
           >
-            Download PDF
+            Download Preview PDF
+          </Button>
+          <Button 
+            onClick={handleDownloadPDF}
+            variant="outline"
+            className="border-green-500 text-green-600 hover:bg-green-50 text-sm sm:text-base"
+          >
+            Generate PDF
           </Button>
           <Button 
             onClick={handlePrint}
@@ -198,7 +217,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
 
       {/* Receipt Card */}
       <Card className="bg-white shadow-xl border-0 print:shadow-none">
-        <CardContent className="p-6 sm:p-8 lg:p-12">
+        <CardContent id="receipt-preview" className="p-6 sm:p-8 lg:p-12">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">

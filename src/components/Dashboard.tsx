@@ -236,14 +236,6 @@ const Dashboard = ({ user }: DashboardProps) => {
                   Fee Receipt
                 </Button>
                 <Button
-                  onClick={() => window.location.href = '/modern-receipts'}
-                  variant="outline"
-                  className="border-2 font-semibold border-orange-300 text-orange-700 hover:bg-orange-50"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Modern Receipts
-                </Button>
-                <Button
                   onClick={() => {
                     setCurrentView('view');
                     setShowDetailedReceipt(false);

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
 import jsPDF from 'jspdf';
 import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
+import { formatAmountInWords } from '@/lib/numberToWords';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -251,6 +252,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center min-w-[200px]">
               <p className="text-sm font-semibold text-slate-700 mb-1">AMOUNT PAID</p>
               <p className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(receipt.amountPaid)}</p>
+              <p className="text-xs text-slate-600 mt-2 italic">({formatAmountInWords(receipt.amountPaid)})</p>
             </div>
           </div>
 

@@ -5,8 +5,7 @@ import { Receipt } from '@/types/receipt';
 import jsPDF from 'jspdf';
 import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
 import { formatAmountInWords } from '@/lib/numberToWords';
-import { Download, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { Download } from 'lucide-react';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -15,7 +14,6 @@ interface ReceiptCardProps {
 
 const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
   const { downloadReceiptAsPDF } = useReceiptImageToPDF();
-  const [isDataVisible, setIsDataVisible] = useState(true);
   
   const handlePrint = () => {
     window.print();
@@ -51,14 +49,6 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Receipt Preview</h2>
         <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={() => setIsDataVisible(!isDataVisible)}
-            variant="outline"
-            className="border-slate-500 text-slate-600 hover:bg-slate-50 text-sm sm:text-base flex items-center gap-2"
-          >
-            {isDataVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {isDataVisible ? 'Hide Data' : 'Show Data'}
-          </Button>
           <Button 
             onClick={onEdit}
             variant="outline"
@@ -118,10 +108,10 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center min-w-[250px]">
               <p className="text-sm font-semibold text-slate-700 mb-2">AMOUNT PAID</p>
               <p className="text-4xl sm:text-5xl font-bold text-green-600">
-                {isDataVisible ? formatCurrency(receipt.amountPaid) : '****'}
+                {formatCurrency(receipt.amountPaid)}
               </p>
               <p className="text-xs text-slate-600 mt-2 italic">
-                {isDataVisible ? `(${formatAmountInWords(receipt.amountPaid)})` : '(Amount hidden)'}
+                ({formatAmountInWords(receipt.amountPaid)})
               </p>
             </div>
           </div>
@@ -131,17 +121,13 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                 <span className="text-blue-600 font-medium text-sm sm:text-base">Receipt No:</span>
-                <span className="font-bold text-slate-900 text-sm sm:text-base">
-                  {isDataVisible ? receipt.receiptNumber : '****'}
-                </span>
+                <span className="font-bold text-slate-900 text-sm sm:text-base">{receipt.receiptNumber}</span>
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                 <span className="text-blue-600 font-medium text-sm sm:text-base">Date Issued:</span>
-                <span className="font-bold text-green-600 text-sm sm:text-base">
-                  {isDataVisible ? formatDate(receipt.paymentDate) : '****'}
-                </span>
+                <span className="font-bold text-green-600 text-sm sm:text-base">{formatDate(receipt.paymentDate)}</span>
               </div>
             </div>
           </div>
@@ -153,29 +139,21 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
               <div className="space-y-4">
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Pupil Name:</span>
-                  <span className="font-bold text-blue-600 text-base sm:text-lg">
-                    {isDataVisible ? receipt.studentName : '****'}
-                  </span>
+                  <span className="font-bold text-blue-600 text-base sm:text-lg">{receipt.studentName}</span>
                 </div>
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Class:</span>
-                  <span className="font-bold text-blue-600 text-base sm:text-lg">
-                    {isDataVisible ? receipt.studentClass : '****'}
-                  </span>
+                  <span className="font-bold text-blue-600 text-base sm:text-lg">{receipt.studentClass}</span>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Term:</span>
-                  <span className="font-bold text-green-600 text-base sm:text-lg">
-                    {isDataVisible ? receipt.term : '****'}
-                  </span>
+                  <span className="font-bold text-green-600 text-base sm:text-lg">{receipt.term}</span>
                 </div>
                 <div>
                   <span className="block text-slate-700 font-medium text-sm mb-1">Session:</span>
-                  <span className="font-bold text-purple-600 text-base sm:text-lg">
-                    {isDataVisible ? receipt.session : '****'}
-                  </span>
+                  <span className="font-bold text-purple-600 text-base sm:text-lg">{receipt.session}</span>
                 </div>
               </div>
             </div>
@@ -186,7 +164,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             <div className="mb-8">
               <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-3">Payment Description:</h4>
               <p className="text-slate-700 text-sm sm:text-base leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
-                {isDataVisible ? receipt.description : 'Description hidden for privacy'}
+                {receipt.description}
               </p>
             </div>
           )}

@@ -101,12 +101,12 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           <div className="border-t border-slate-300 mb-8"></div>
 
           {/* Receipt Header with Amount */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+          <div className="flex flex-col items-center gap-6 mb-8">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-blue-600">OFFICIAL RECEIPT</h2>
             </div>
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center min-w-[200px]">
-              <p className="text-sm font-semibold text-slate-700 mb-1">AMOUNT PAID</p>
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center min-w-[250px]">
+              <p className="text-sm font-semibold text-slate-700 mb-2">AMOUNT PAID</p>
               <p className="text-4xl sm:text-5xl font-bold text-green-600">{formatCurrency(receipt.amountPaid)}</p>
               <p className="text-xs text-slate-600 mt-2 italic">({formatAmountInWords(receipt.amountPaid)})</p>
             </div>

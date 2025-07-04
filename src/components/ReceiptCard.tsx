@@ -5,6 +5,7 @@ import { Receipt } from '@/types/receipt';
 import jsPDF from 'jspdf';
 import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
 import { formatAmountInWords } from '@/lib/numberToWords';
+import { Download } from 'lucide-react';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -57,8 +58,9 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           </Button>
           <Button 
             onClick={handleDownloadPreviewAsPDF}
-            className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base"
+            className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base flex items-center gap-2"
           >
+            <Download className="h-4 w-4" />
             Download Receipt
           </Button>
           <Button 

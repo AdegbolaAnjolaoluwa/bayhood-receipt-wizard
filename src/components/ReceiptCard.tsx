@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Receipt } from '@/types/receipt';
@@ -6,35 +5,33 @@ import jsPDF from 'jspdf';
 import { useReceiptImageToPDF } from '@/hooks/useReceiptImageToPDF';
 import { formatAmountInWords } from '@/lib/numberToWords';
 import { Download } from 'lucide-react';
-
 interface ReceiptCardProps {
   receipt: Receipt;
   onEdit: () => void;
 }
-
-const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
-  const { downloadReceiptAsPDF } = useReceiptImageToPDF();
-  
+const ReceiptCard = ({
+  receipt,
+  onEdit
+}: ReceiptCardProps) => {
+  const {
+    downloadReceiptAsPDF
+  } = useReceiptImageToPDF();
   const handlePrint = () => {
     window.print();
   };
-
   const handleDownloadPreviewAsPDF = async () => {
     const fileName = `${receipt.studentName.replace(/\s+/g, '_')}.pdf`;
     const success = await downloadReceiptAsPDF('receipt-preview', fileName);
-    
     if (!success) {
       console.error('Failed to generate PDF from preview');
     }
   };
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'NGN',
+      currency: 'NGN'
     }).format(amount);
   };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -42,31 +39,19 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
       year: 'numeric'
     });
   };
-
-  return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+  return <div className="w-full max-w-4xl mx-auto p-4">
       {/* Action buttons */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Receipt Preview</h2>
         <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={onEdit}
-            variant="outline"
-            className="border-blue-500 text-blue-600 hover:bg-blue-50 text-sm sm:text-base"
-          >
+          <Button onClick={onEdit} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 text-sm sm:text-base">
             Edit Receipt
           </Button>
-          <Button 
-            onClick={handleDownloadPreviewAsPDF}
-            className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base flex items-center gap-2"
-          >
+          <Button onClick={handleDownloadPreviewAsPDF} className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base flex items-center gap-2">
             <Download className="h-4 w-4" />
             Download Receipt
           </Button>
-          <Button 
-            onClick={handlePrint}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base"
-          >
+          <Button onClick={handlePrint} className="bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base">
             Print Receipt
           </Button>
         </div>
@@ -78,11 +63,7 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <img 
-                src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
-                alt="Bayhood Preparatory School Logo" 
-                className="h-16 sm:h-20 w-auto"
-              />
+              <img src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" alt="Bayhood Preparatory School Logo" className="h-16 sm:h-20 w-auto" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
               BAYHOOD PREPARATORY SCHOOL
@@ -160,29 +141,21 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           </div>
 
           {/* Payment Description */}
-          {receipt.description && (
-            <div className="mb-8">
+          {receipt.description && <div className="mb-8">
               <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-3">Payment Description:</h4>
               <p className="text-slate-700 text-sm sm:text-base leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
                 {receipt.description}
               </p>
-            </div>
-          )}
+            </div>}
 
           {/* Authorized Signature */}
           <div className="mt-8 mb-6 text-right">
             <div className="inline-block">
-              <img 
-                src="/lovable-uploads/72861234-f1b5-4988-aa79-7f3a6829d66e.png"
-                alt="Authorized Signature"
-                className="h-16 w-auto mb-2"
-              />
+              <img src="/lovable-uploads/72861234-f1b5-4988-aa79-7f3a6829d66e.png" alt="Authorized Signature" className="h-16 w-auto mb-2" />
               <div className="text-sm text-slate-700 font-medium border-t border-slate-300 pt-2">
                 Authorized Signature
               </div>
-              <div className="text-xs text-slate-600 mt-1">
-                Manage Met
-              </div>
+              <div className="text-xs text-slate-600 mt-1">Management</div>
             </div>
           </div>
 
@@ -192,8 +165,6 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default ReceiptCard;

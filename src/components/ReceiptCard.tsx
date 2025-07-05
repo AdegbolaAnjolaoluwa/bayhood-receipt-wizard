@@ -169,8 +169,25 @@ const ReceiptCard = ({ receipt, onEdit }: ReceiptCardProps) => {
             </div>
           )}
 
+          {/* Authorized Signature */}
+          <div className="mt-8 mb-6 text-right">
+            <div className="inline-block">
+              <img 
+                src="/lovable-uploads/72861234-f1b5-4988-aa79-7f3a6829d66e.png"
+                alt="Authorized Signature"
+                className="h-16 w-auto mb-2"
+              />
+              <div className="text-sm text-slate-700 font-medium border-t border-slate-300 pt-2">
+                Authorized Signature
+              </div>
+              <div className="text-xs text-slate-600 mt-1">
+                Manage Met
+              </div>
+            </div>
+          </div>
+
           {/* Footer */}
-          <div className="text-center text-xs sm:text-sm text-slate-500 italic mt-8">
+          <div className="text-center text-xs sm:text-sm text-slate-500 italic">
             Thank you for your payment. Keep this receipt for your records.
           </div>
         </CardContent>

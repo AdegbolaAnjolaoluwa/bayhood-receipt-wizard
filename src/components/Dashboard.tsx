@@ -10,7 +10,7 @@ import { Receipt } from '@/types/receipt';
 import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { FileText, Users, DollarSign, Calendar, Menu } from 'lucide-react';
+import { FileText, Users, DollarSign, Calendar, Menu, Eye, EyeOff } from 'lucide-react';
 
 interface DashboardProps {
   user: {
@@ -30,6 +30,7 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const [showDetailedReceipt, setShowDetailedReceipt] = useState(false);
+  const [hideAnalytics, setHideAnalytics] = useState(false);
 
   // Load receipts from Supabase on component mount
   useEffect(() => {
@@ -351,6 +352,19 @@ const Dashboard = ({ user }: DashboardProps) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Privacy Toggle */}
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={() => setHideAnalytics(!hideAnalytics)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 border-gray-300 text-gray-600 hover:bg-gray-50"
+          >
+            {hideAnalytics ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {hideAnalytics ? 'Show Analytics' : 'Hide Analytics'}
+          </Button>
+        </div>
+
         {/* Stats Cards - responsive grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
@@ -362,7 +376,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent>
               <p className="text-2xl sm:text-3xl font-bold">
-                {loading ? '...' : allReceipts.length}
+                {loading ? '...' : hideAnalytics ? '****' : allReceipts.length}
               </p>
               <p className="text-blue-100 text-xs sm:text-sm mt-1">All time receipts</p>
             </CardContent>
@@ -377,7 +391,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent>
               <p className="text-xl sm:text-2xl lg:text-3xl font-bold break-words">
-                {loading ? '...' : `₦${totalAmount.toLocaleString()}`}
+                {loading ? '...' : hideAnalytics ? '₦*****' : `₦${totalAmount.toLocaleString()}`}
               </p>
               <p className="text-green-100 text-xs sm:text-sm mt-1">Total collected</p>
             </CardContent>
@@ -392,7 +406,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             </CardHeader>
             <CardContent>
               <p className="text-2xl sm:text-3xl font-bold">
-                {loading ? '...' : thisMonth}
+                {loading ? '...' : hideAnalytics ? '****' : thisMonth}
               </p>
               <p className="text-purple-100 text-xs sm:text-sm mt-1">Recent receipts</p>
             </CardContent>

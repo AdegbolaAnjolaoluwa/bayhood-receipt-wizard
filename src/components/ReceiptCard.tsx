@@ -151,7 +151,7 @@ const ReceiptCard = ({
           {/* Authorized Signature */}
           <div className="mt-8 mb-6 text-right">
             <div className="inline-block">
-              <img src="/lovable-uploads/72861234-f1b5-4988-aa79-7f3a6829d66e.png" alt="Authorized Signature" className="h-16 w-auto mb-2" />
+              <img src="/lovable-uploads/72861234-f1b5-4988-aa79-7f3a6829d66e.png" alt="Authorized Signature" className="h-24 w-auto mb-2" />
               <div className="text-sm text-slate-700 font-medium border-t border-slate-300 pt-2">
                 Authorized Signature
               </div>

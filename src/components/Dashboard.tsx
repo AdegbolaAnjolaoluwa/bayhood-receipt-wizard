@@ -6,7 +6,7 @@ import SimpleReceiptForm from './SimpleReceiptForm';
 import ReceiptCard from './ReceiptCard';
 import DetailedReceiptCard from './DetailedReceiptCard';
 import ReceiptTable from './ReceiptTable';
-import StudentDashboard from './StudentDashboard';
+import PupilDashboard from './PupilDashboard';
 import ReportingDashboard from './ReportingDashboard';
 import { Receipt } from '@/types/receipt';
 import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
@@ -209,81 +209,81 @@ const Dashboard = ({ user }: DashboardProps) => {
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-6">
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => {
-                  setCurrentView('generate');
-                  setShowDetailedReceipt(false);
-                }}
-                variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
-                className={`border-2 font-semibold ${
-                  currentView === 'generate' && !showDetailedReceipt
-                    ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Generate Receipt
-              </Button>
-              <Button
-                onClick={handleShowDetailedReceipt}
-                variant={showDetailedReceipt ? 'default' : 'outline'}
-                className={`border-2 font-semibold ${
-                  showDetailedReceipt
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' 
-                    : 'border-purple-300 text-purple-700 hover:bg-purple-50'
-                }`}
-              >
-                <DollarSign className="w-4 h-4 mr-2" />
-                Fee Receipt
-              </Button>
-              <Button
-                onClick={() => {
-                  setCurrentView('view');
-                  setShowDetailedReceipt(false);
-                }}
-                variant={currentView === 'view' ? 'default' : 'outline'}
-                className={`border-2 font-semibold ${
-                  currentView === 'view' 
-                    ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                View Receipts
-              </Button>
-              <Button
-                onClick={() => {
-                  setCurrentView('student');
-                  setShowDetailedReceipt(false);
-                }}
-                variant={currentView === 'student' ? 'default' : 'outline'}
-                className={`border-2 font-semibold ${
-                  currentView === 'student' 
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white shadow-md' 
-                    : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
-                }`}
-              >
-                <User className="w-4 h-4 mr-2" />
-                Students
-              </Button>
-              <Button
-                onClick={() => {
-                  setCurrentView('reports');
-                  setShowDetailedReceipt(false);
-                }}
-                variant={currentView === 'reports' ? 'default' : 'outline'}
-                className={`border-2 font-semibold ${
-                  currentView === 'reports' 
-                    ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-md' 
-                    : 'border-orange-300 text-orange-700 hover:bg-orange-50'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Reports
-              </Button>
-            </div>
+            <div className="hidden lg:flex items-center space-x-4">
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  onClick={() => {
+                    setCurrentView('generate');
+                    setShowDetailedReceipt(false);
+                  }}
+                  variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
+                  className={`text-xs px-3 py-2 h-auto ${
+                    currentView === 'generate' && !showDetailedReceipt
+                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  Receipt
+                </Button>
+                <Button
+                  onClick={handleShowDetailedReceipt}
+                  variant={showDetailedReceipt ? 'default' : 'outline'}
+                  className={`text-xs px-3 py-2 h-auto ${
+                    showDetailedReceipt
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' 
+                      : 'border-purple-300 text-purple-700 hover:bg-purple-50'
+                  }`}
+                >
+                  <DollarSign className="w-3 h-3 mr-1" />
+                  Fee
+                </Button>
+                <Button
+                  onClick={() => {
+                    setCurrentView('view');
+                    setShowDetailedReceipt(false);
+                  }}
+                  variant={currentView === 'view' ? 'default' : 'outline'}
+                  className={`text-xs px-3 py-2 h-auto ${
+                    currentView === 'view' 
+                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Users className="w-3 h-3 mr-1" />
+                  View
+                </Button>
+                <Button
+                  onClick={() => {
+                    setCurrentView('student');
+                    setShowDetailedReceipt(false);
+                  }}
+                  variant={currentView === 'student' ? 'default' : 'outline'}
+                  className={`text-xs px-3 py-2 h-auto ${
+                    currentView === 'student' 
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white shadow-md' 
+                      : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
+                  }`}
+                >
+                  <User className="w-3 h-3 mr-1" />
+                  Pupils
+                </Button>
+                <Button
+                  onClick={() => {
+                    setCurrentView('reports');
+                    setShowDetailedReceipt(false);
+                  }}
+                  variant={currentView === 'reports' ? 'default' : 'outline'}
+                  className={`text-xs px-3 py-2 h-auto ${
+                    currentView === 'reports' 
+                      ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50'
+                  }`}
+                >
+                  <BarChart3 className="w-3 h-3 mr-1" />
+                  Reports
+                </Button>
+              </div>
               
               <div className="text-right bg-gradient-to-r from-blue-100 to-green-100 px-4 py-2 rounded-lg border border-blue-200">
                 <p className="font-bold text-gray-800 text-sm">{user.username}</p>
@@ -315,7 +315,7 @@ const Dashboard = ({ user }: DashboardProps) => {
           {mobileMenuOpen && (
             <div className="lg:hidden mt-4 pt-4 border-t border-gray-200">
               <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     onClick={() => {
                       setCurrentView('generate');
@@ -323,14 +323,14 @@ const Dashboard = ({ user }: DashboardProps) => {
                       setMobileMenuOpen(false);
                     }}
                     variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
-                    className={`flex-1 text-xs ${
+                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
                       currentView === 'generate' && !showDetailedReceipt
                         ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white' 
                         : 'border-gray-300 text-gray-700'
                     }`}
                   >
-                    <FileText className="w-3 h-3 mr-1" />
-                    Generate
+                    <FileText className="w-4 h-4" />
+                    Receipt
                   </Button>
                   <Button
                     onClick={() => {
@@ -338,13 +338,13 @@ const Dashboard = ({ user }: DashboardProps) => {
                       setMobileMenuOpen(false);
                     }}
                     variant={showDetailedReceipt ? 'default' : 'outline'}
-                    className={`flex-1 text-xs ${
+                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
                       showDetailedReceipt
                         ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white' 
                         : 'border-purple-300 text-purple-700'
                     }`}
                   >
-                    <DollarSign className="w-3 h-3 mr-1" />
+                    <DollarSign className="w-4 h-4" />
                     Fee
                   </Button>
                   <Button
@@ -354,13 +354,13 @@ const Dashboard = ({ user }: DashboardProps) => {
                       setMobileMenuOpen(false);
                     }}
                     variant={currentView === 'view' ? 'default' : 'outline'}
-                    className={`flex-1 text-xs ${
+                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
                       currentView === 'view' 
                         ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white' 
                         : 'border-gray-300 text-gray-700'
                     }`}
                   >
-                    <Users className="w-3 h-3 mr-1" />
+                    <Users className="w-4 h-4" />
                     View
                   </Button>
                   <Button
@@ -370,17 +370,15 @@ const Dashboard = ({ user }: DashboardProps) => {
                       setMobileMenuOpen(false);
                     }}
                     variant={currentView === 'student' ? 'default' : 'outline'}
-                    className={`flex-1 text-xs ${
+                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
                       currentView === 'student' 
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white' 
                         : 'border-indigo-300 text-indigo-700'
                     }`}
                   >
-                    <User className="w-3 h-3 mr-1" />
-                    Students
+                    <User className="w-4 h-4" />
+                    Pupils
                   </Button>
-                </div>
-                <div className="flex gap-2 mt-2">
                   <Button
                     onClick={() => {
                       setCurrentView('reports');
@@ -388,13 +386,13 @@ const Dashboard = ({ user }: DashboardProps) => {
                       setMobileMenuOpen(false);
                     }}
                     variant={currentView === 'reports' ? 'default' : 'outline'}
-                    className={`flex-1 text-xs ${
+                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 col-span-2 ${
                       currentView === 'reports' 
                         ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white' 
                         : 'border-orange-300 text-orange-700'
                     }`}
                   >
-                    <BarChart3 className="w-3 h-3 mr-1" />
+                    <BarChart3 className="w-4 h-4" />
                     Reports
                   </Button>
                 </div>
@@ -488,7 +486,7 @@ const Dashboard = ({ user }: DashboardProps) => {
             onEdit={() => handleEditReceipt(currentReceipt)}
           />
         ) : currentView === 'student' ? (
-          <StudentDashboard
+          <PupilDashboard
             receipts={allReceipts}
             loading={loading}
             onBack={() => setCurrentView('generate')}
@@ -506,7 +504,7 @@ const Dashboard = ({ user }: DashboardProps) => {
               <CardTitle className="text-gray-800 text-lg sm:text-xl font-bold">
                 Generate New Receipt
               </CardTitle>
-              <p className="text-gray-600 text-sm sm:text-base">Fill in the student details and payment information</p>
+              <p className="text-gray-600 text-sm sm:text-base">Fill in the pupil details and payment information</p>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 lg:p-8">
               <SimpleReceiptForm 

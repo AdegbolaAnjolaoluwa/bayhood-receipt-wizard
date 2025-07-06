@@ -7,11 +7,12 @@ import ReceiptCard from './ReceiptCard';
 import DetailedReceiptCard from './DetailedReceiptCard';
 import ReceiptTable from './ReceiptTable';
 import StudentDashboard from './StudentDashboard';
+import ReportingDashboard from './ReportingDashboard';
 import { Receipt } from '@/types/receipt';
 import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { FileText, Users, DollarSign, Calendar, Menu, Eye, EyeOff, User } from 'lucide-react';
+import { FileText, Users, DollarSign, Calendar, Menu, Eye, EyeOff, User, BarChart3 } from 'lucide-react';
 
 interface DashboardProps {
   user: {
@@ -27,7 +28,7 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'generate' | 'view' | 'student'>('generate');
+  const [currentView, setCurrentView] = useState<'generate' | 'view' | 'student' | 'reports'>('generate');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const [showDetailedReceipt, setShowDetailedReceipt] = useState(false);
@@ -267,6 +268,21 @@ const Dashboard = ({ user }: DashboardProps) => {
                 <User className="w-4 h-4 mr-2" />
                 Students
               </Button>
+              <Button
+                onClick={() => {
+                  setCurrentView('reports');
+                  setShowDetailedReceipt(false);
+                }}
+                variant={currentView === 'reports' ? 'default' : 'outline'}
+                className={`border-2 font-semibold ${
+                  currentView === 'reports' 
+                    ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-md' 
+                    : 'border-orange-300 text-orange-700 hover:bg-orange-50'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Reports
+              </Button>
             </div>
               
               <div className="text-right bg-gradient-to-r from-blue-100 to-green-100 px-4 py-2 rounded-lg border border-blue-200">
@@ -364,6 +380,24 @@ const Dashboard = ({ user }: DashboardProps) => {
                     Students
                   </Button>
                 </div>
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    onClick={() => {
+                      setCurrentView('reports');
+                      setShowDetailedReceipt(false);
+                      setMobileMenuOpen(false);
+                    }}
+                    variant={currentView === 'reports' ? 'default' : 'outline'}
+                    className={`flex-1 text-xs ${
+                      currentView === 'reports' 
+                        ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white' 
+                        : 'border-orange-300 text-orange-700'
+                    }`}
+                  >
+                    <BarChart3 className="w-3 h-3 mr-1" />
+                    Reports
+                  </Button>
+                </div>
                 
                 <div className="bg-gradient-to-r from-blue-100 to-green-100 p-3 rounded-lg border border-blue-200">
                   <p className="font-bold text-gray-800 text-sm">{user.username}</p>
@@ -459,6 +493,12 @@ const Dashboard = ({ user }: DashboardProps) => {
             loading={loading}
             onBack={() => setCurrentView('generate')}
             onViewReceipt={setCurrentReceipt}
+          />
+        ) : currentView === 'reports' ? (
+          <ReportingDashboard
+            receipts={allReceipts}
+            loading={loading}
+            onBack={() => setCurrentView('generate')}
           />
         ) : currentView === 'generate' ? (
           <Card className="border-0 shadow-xl bg-white">

@@ -97,6 +97,23 @@ const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Form submission started with data:', {
+      studentName: formData.studentName,
+      studentClass: formData.studentClass,
+      term: formData.term,
+      session: formData.session,
+      amountPaid: formData.amountPaid,
+      paymentDate: formData.paymentDate,
+    });
+    
+    // Basic validation
+    if (!formData.studentName || !formData.studentClass || !formData.term || 
+        !formData.session || !formData.amountPaid || !formData.paymentDate) {
+      console.error('Form validation failed - missing required fields');
+      return;
+    }
+    
     onSubmit({
       studentName: formData.studentName,
       studentClass: formData.studentClass,

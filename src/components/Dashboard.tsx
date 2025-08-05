@@ -1,18 +1,35 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SimpleReceiptForm from './SimpleReceiptForm';
 import ReceiptCard from './ReceiptCard';
-import DetailedReceiptCard from './DetailedReceiptCard';
 import ReceiptTable from './ReceiptTable';
 import PupilDashboard from './PupilDashboard';
 import ReportingDashboard from './ReportingDashboard';
+import ReceiptSearchFilter from './ReceiptSearchFilter';
+import FeeTemplateManagement from './FeeTemplateManagement';
+import AdvancedAnalytics from './AdvancedAnalytics';
+import EnhancedReceiptForm from './EnhancedReceiptForm';
+import PasswordChange from './PasswordChange';
+import UserManagement from './UserManagement';
 import { Receipt } from '@/types/receipt';
-import { createSupabaseReceipt, getSupabaseReceipts, updateSupabaseReceipt, deleteSupabaseReceipt } from '@/services/supabaseReceiptService';
+import { createSupabaseReceipt, getSupabaseReceipts } from '@/services/supabaseReceiptService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { FileText, Users, DollarSign, Calendar, Menu, Eye, EyeOff, User, BarChart3 } from 'lucide-react';
+import { 
+  FileText, 
+  Users, 
+  DollarSign, 
+  Calendar, 
+  Menu, 
+  User, 
+  BarChart, 
+  TrendingUp, 
+  Settings, 
+  Plus, 
+  LogOut,
+  Home
+} from 'lucide-react';
 
 interface DashboardProps {
   user: {
@@ -23,45 +40,96 @@ interface DashboardProps {
 
 const Dashboard = ({ user }: DashboardProps) => {
   const { signOut } = useAuth();
-  const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
-  const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
-  const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
-  const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'generate' | 'view' | 'student' | 'reports'>('generate');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-  const [showDetailedReceipt, setShowDetailedReceipt] = useState(false);
-  const [hideAnalytics, setHideAnalytics] = useState(false);
+  
+  const [currentView, setCurrentView] = useState<'dashboard' | 'receipts' | 'simple-form' | 'enhanced-form' | 'fee-templates' | 'analytics' | 'reporting' | 'password-change' | 'user-management'>('dashboard');
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [filteredReceipts, setFilteredReceipts] = useState<Receipt[]>([]);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
+  
+  // Search and filter state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [classFilter, setClassFilter] = useState('');
+  const [termFilter, setTermFilter] = useState('');
+  const [sessionFilter, setSessionFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [amountFrom, setAmountFrom] = useState('');
+  const [amountTo, setAmountTo] = useState('');
 
-  // Load receipts from Supabase on component mount
   useEffect(() => {
-    const loadReceipts = async () => {
-      try {
-        const receipts = await getSupabaseReceipts();
-        setAllReceipts(receipts);
-        setRecentReceipts(receipts.slice(0, 5));
-      } catch (error) {
-        console.error('Error loading receipts:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load receipts",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadReceipts();
-  }, [toast]);
+  }, []);
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
+  // Filter receipts when filters change
+  useEffect(() => {
+    let filtered = receipts;
+
+    if (searchTerm) {
+      filtered = filtered.filter(receipt => 
+        receipt.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
+
+    if (classFilter) {
+      filtered = filtered.filter(receipt => receipt.studentClass === classFilter);
+    }
+
+    if (termFilter) {
+      filtered = filtered.filter(receipt => receipt.term === termFilter);
+    }
+
+    if (sessionFilter) {
+      filtered = filtered.filter(receipt => receipt.session === sessionFilter);
+    }
+
+    if (dateFrom) {
+      filtered = filtered.filter(receipt => 
+        new Date(receipt.paymentDate) >= dateFrom
+      );
+    }
+
+    if (dateTo) {
+      filtered = filtered.filter(receipt => 
+        new Date(receipt.paymentDate) <= dateTo
+      );
+    }
+
+    if (amountFrom) {
+      filtered = filtered.filter(receipt => 
+        receipt.amountPaid >= parseFloat(amountFrom)
+      );
+    }
+
+    if (amountTo) {
+      filtered = filtered.filter(receipt => 
+        receipt.amountPaid <= parseFloat(amountTo)
+      );
+    }
+
+    setFilteredReceipts(filtered);
+  }, [receipts, searchTerm, classFilter, termFilter, sessionFilter, dateFrom, dateTo, amountFrom, amountTo]);
+
+  const loadReceipts = async () => {
+    console.log('Loading receipts...');
+    const data = await getSupabaseReceipts();
+    console.log('Loaded receipts:', data);
+    setReceipts(data);
+    setLoading(false);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setClassFilter('');
+    setTermFilter('');
+    setSessionFilter('');
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setAmountFrom('');
+    setAmountTo('');
   };
 
   const handleSimpleReceiptSubmit = async (receiptData: {
@@ -78,8 +146,15 @@ const Dashboard = ({ user }: DashboardProps) => {
     totalAmount?: number;
     outstandingBalance?: number;
     paymentStatus?: string;
+    feeBreakdown?: Array<{
+      name: string;
+      category: string;
+      amount: number;
+      quantity: number;
+    }>;
   }) => {
     console.log('Dashboard handleSimpleReceiptSubmit called with:', receiptData);
+    setReceiptLoading(true);
     try {
       // Create enhanced description with fee breakdown and payment details
       let enhancedDescription = receiptData.description;
@@ -107,6 +182,14 @@ const Dashboard = ({ user }: DashboardProps) => {
         }
       }
 
+      // Handle fee breakdown from enhanced form
+      if (receiptData.feeBreakdown && receiptData.feeBreakdown.length > 0) {
+        const breakdown = receiptData.feeBreakdown
+          .map(fee => `${fee.name}${fee.quantity > 1 ? ` (x${fee.quantity})` : ''}: ₦${(fee.amount * fee.quantity).toLocaleString()}`)
+          .join(', ');
+        enhancedDescription = breakdown;
+      }
+
       const newReceipt = await createSupabaseReceipt({
         studentName: receiptData.studentName,
         studentClass: receiptData.studentClass,
@@ -120,9 +203,7 @@ const Dashboard = ({ user }: DashboardProps) => {
       setCurrentReceipt(newReceipt);
       
       // Refresh receipts
-      const receipts = await getSupabaseReceipts();
-      setAllReceipts(receipts);
-      setRecentReceipts(receipts.slice(0, 5));
+      await loadReceipts();
       
       toast({
         title: "Success",
@@ -135,66 +216,36 @@ const Dashboard = ({ user }: DashboardProps) => {
         description: "Failed to generate receipt. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setReceiptLoading(false);
     }
   };
 
-  const handleEditReceipt = (receipt: Receipt) => {
-    setEditingReceipt(receipt);
-    setCurrentReceipt(null);
-    setCurrentView('generate');
-  };
-
-  const handleDeleteReceipt = async (receiptId: string) => {
+  const handleLogout = async () => {
     try {
-      const success = await deleteSupabaseReceipt(receiptId);
-      if (success) {
-        // Refresh receipts
-        const receipts = await getSupabaseReceipts();
-        setAllReceipts(receipts);
-        setRecentReceipts(receipts.slice(0, 5));
-        
-        toast({
-          title: "Success",
-          description: "Receipt deleted successfully!",
-        });
-      }
+      await signOut();
     } catch (error) {
-      console.error('Error deleting receipt:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete receipt.",
-        variant: "destructive",
-      });
+      console.error('Error signing out:', error);
     }
-  };
-
-  const handleNewReceipt = () => {
-    setCurrentReceipt(null);
-    setEditingReceipt(null);
-    setCurrentView('generate');
-  };
-
-  const handleShowDetailedReceipt = () => {
-    setShowDetailedReceipt(true);
-    setCurrentReceipt(null);
-    setCurrentView('generate');
   };
 
   // Calculate stats
-  const totalAmount = allReceipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
-  const thisMonth = allReceipts.filter(r => {
+  const totalAmount = receipts.reduce((sum, receipt) => sum + receipt.amountPaid, 0);
+  const thisMonth = receipts.filter(r => {
     const receiptDate = new Date(r.createdAt);
     const now = new Date();
     return receiptDate.getMonth() === now.getMonth() && receiptDate.getFullYear() === now.getFullYear();
   }).length;
 
+  const uniqueStudents = new Set(receipts.map(r => r.studentName.toLowerCase())).size;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header - fully responsive */}
+      {/* Header */}
       <div className="bg-white shadow-lg border-b-4 border-gradient-to-r from-blue-600 to-green-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex justify-between items-center">
-            {/* Logo and title - responsive */}
+            {/* Logo and title */}
             <div className="flex items-center space-x-3 sm:space-x-6">
               <img 
                 src="/lovable-uploads/5c6ce8b6-a29d-4cde-9dcd-8a3d504cd230.png" 
@@ -209,83 +260,8 @@ const Dashboard = ({ user }: DashboardProps) => {
               </div>
             </div>
             
-            {/* Desktop Navigation */}
+            {/* User info and logout */}
             <div className="hidden lg:flex items-center space-x-4">
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  onClick={() => {
-                    setCurrentView('generate');
-                    setShowDetailedReceipt(false);
-                  }}
-                  variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
-                  className={`text-xs px-3 py-2 h-auto ${
-                    currentView === 'generate' && !showDetailedReceipt
-                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  Receipt
-                </Button>
-                <Button
-                  onClick={handleShowDetailedReceipt}
-                  variant={showDetailedReceipt ? 'default' : 'outline'}
-                  className={`text-xs px-3 py-2 h-auto ${
-                    showDetailedReceipt
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' 
-                      : 'border-purple-300 text-purple-700 hover:bg-purple-50'
-                  }`}
-                >
-                  <DollarSign className="w-3 h-3 mr-1" />
-                  Fee
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCurrentView('view');
-                    setShowDetailedReceipt(false);
-                  }}
-                  variant={currentView === 'view' ? 'default' : 'outline'}
-                  className={`text-xs px-3 py-2 h-auto ${
-                    currentView === 'view' 
-                      ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md' 
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Users className="w-3 h-3 mr-1" />
-                  View
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCurrentView('student');
-                    setShowDetailedReceipt(false);
-                  }}
-                  variant={currentView === 'student' ? 'default' : 'outline'}
-                  className={`text-xs px-3 py-2 h-auto ${
-                    currentView === 'student' 
-                      ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white shadow-md' 
-                      : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
-                  }`}
-                >
-                  <User className="w-3 h-3 mr-1" />
-                  Pupils
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCurrentView('reports');
-                    setShowDetailedReceipt(false);
-                  }}
-                  variant={currentView === 'reports' ? 'default' : 'outline'}
-                  className={`text-xs px-3 py-2 h-auto ${
-                    currentView === 'reports' 
-                      ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-md' 
-                      : 'border-orange-300 text-orange-700 hover:bg-orange-50'
-                  }`}
-                >
-                  <BarChart3 className="w-3 h-3 mr-1" />
-                  Reports
-                </Button>
-              </div>
-              
               <div className="text-right bg-gradient-to-r from-blue-100 to-green-100 px-4 py-2 rounded-lg border border-blue-200">
                 <p className="font-bold text-gray-800 text-sm">{user.username}</p>
                 <p className="text-xs text-gray-600">{user.role}</p>
@@ -293,8 +269,9 @@ const Dashboard = ({ user }: DashboardProps) => {
               <Button 
                 onClick={handleLogout}
                 variant="outline"
-                className="border-2 border-red-400 text-red-600 hover:bg-red-50 font-semibold"
+                className="border-2 border-red-400 text-red-600 hover:bg-red-50 font-semibold gap-2"
               >
+                <LogOut className="h-4 w-4" />
                 Logout
               </Button>
             </div>
@@ -316,88 +293,6 @@ const Dashboard = ({ user }: DashboardProps) => {
           {mobileMenuOpen && (
             <div className="lg:hidden mt-4 pt-4 border-t border-gray-200">
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    onClick={() => {
-                      setCurrentView('generate');
-                      setShowDetailedReceipt(false);
-                      setMobileMenuOpen(false);
-                    }}
-                    variant={currentView === 'generate' && !showDetailedReceipt ? 'default' : 'outline'}
-                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
-                      currentView === 'generate' && !showDetailedReceipt
-                        ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white' 
-                        : 'border-gray-300 text-gray-700'
-                    }`}
-                  >
-                    <FileText className="w-4 h-4" />
-                    Receipt
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleShowDetailedReceipt();
-                      setMobileMenuOpen(false);
-                    }}
-                    variant={showDetailedReceipt ? 'default' : 'outline'}
-                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
-                      showDetailedReceipt
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white' 
-                        : 'border-purple-300 text-purple-700'
-                    }`}
-                  >
-                    <DollarSign className="w-4 h-4" />
-                    Fee
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setCurrentView('view');
-                      setShowDetailedReceipt(false);
-                      setMobileMenuOpen(false);
-                    }}
-                    variant={currentView === 'view' ? 'default' : 'outline'}
-                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
-                      currentView === 'view' 
-                        ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white' 
-                        : 'border-gray-300 text-gray-700'
-                    }`}
-                  >
-                    <Users className="w-4 h-4" />
-                    View
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setCurrentView('student');
-                      setShowDetailedReceipt(false);
-                      setMobileMenuOpen(false);
-                    }}
-                    variant={currentView === 'student' ? 'default' : 'outline'}
-                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 ${
-                      currentView === 'student' 
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white' 
-                        : 'border-indigo-300 text-indigo-700'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    Pupils
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setCurrentView('reports');
-                      setShowDetailedReceipt(false);
-                      setMobileMenuOpen(false);
-                    }}
-                    variant={currentView === 'reports' ? 'default' : 'outline'}
-                    className={`h-12 flex flex-col items-center justify-center text-xs gap-1 col-span-2 ${
-                      currentView === 'reports' 
-                        ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white' 
-                        : 'border-orange-300 text-orange-700'
-                    }`}
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Reports
-                  </Button>
-                </div>
-                
                 <div className="bg-gradient-to-r from-blue-100 to-green-100 p-3 rounded-lg border border-blue-200">
                   <p className="font-bold text-gray-800 text-sm">{user.username}</p>
                   <p className="text-xs text-gray-600">{user.role}</p>
@@ -406,8 +301,9 @@ const Dashboard = ({ user }: DashboardProps) => {
                 <Button 
                   onClick={handleLogout}
                   variant="outline"
-                  className="w-full border-2 border-red-400 text-red-600 hover:bg-red-50 font-semibold text-sm"
+                  className="w-full border-2 border-red-400 text-red-600 hover:bg-red-50 font-semibold text-sm gap-2"
                 >
+                  <LogOut className="h-4 w-4" />
                   Logout
                 </Button>
               </div>
@@ -416,145 +312,306 @@ const Dashboard = ({ user }: DashboardProps) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Privacy Toggle */}
-        <div className="flex justify-end mb-4">
-          <Button
-            onClick={() => setHideAnalytics(!hideAnalytics)}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 border-gray-300 text-gray-600 hover:bg-gray-50"
-          >
-            {hideAnalytics ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {hideAnalytics ? 'Show Analytics' : 'Hide Analytics'}
-          </Button>
-        </div>
-
-        {/* Stats Cards - responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white font-semibold text-sm sm:text-base">Total Receipts</CardTitle>
-                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-100" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl sm:text-3xl font-bold">
-                {loading ? '...' : hideAnalytics ? '****' : allReceipts.length}
-              </p>
-              <p className="text-blue-100 text-xs sm:text-sm mt-1">All time receipts</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white font-semibold text-sm sm:text-base">Total Amount</CardTitle>
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-100" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold break-words">
-                {loading ? '...' : hideAnalytics ? '₦*****' : `₦${totalAmount.toLocaleString()}`}
-              </p>
-              <p className="text-green-100 text-xs sm:text-sm mt-1">Total collected</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white sm:col-span-2 lg:col-span-1">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white font-semibold text-sm sm:text-base">This Month</CardTitle>
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-100" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl sm:text-3xl font-bold">
-                {loading ? '...' : hideAnalytics ? '****' : thisMonth}
-              </p>
-              <p className="text-purple-100 text-xs sm:text-sm mt-1">Recent receipts</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content - responsive */}
-        {showDetailedReceipt ? (
-          <DetailedReceiptCard onBack={() => setShowDetailedReceipt(false)} />
-        ) : currentReceipt ? (
-          <ReceiptCard 
-            receipt={currentReceipt} 
-            onEdit={() => handleEditReceipt(currentReceipt)}
-          />
-        ) : currentView === 'student' ? (
-          <PupilDashboard
-            receipts={allReceipts}
-            loading={loading}
-            onBack={() => setCurrentView('generate')}
-            onViewReceipt={setCurrentReceipt}
-          />
-        ) : currentView === 'reports' ? (
-          <ReportingDashboard
-            receipts={allReceipts}
-            loading={loading}
-            onBack={() => setCurrentView('generate')}
-          />
-        ) : currentView === 'generate' ? (
-          <Card className="border-0 shadow-xl bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 border-b border-gray-100">
-              <CardTitle className="text-gray-800 text-lg sm:text-xl font-bold">
-                Generate New Receipt
-              </CardTitle>
-              <p className="text-gray-600 text-sm sm:text-base">Fill in the pupil details and payment information</p>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 lg:p-8">
-              <SimpleReceiptForm 
-                onSubmit={handleSimpleReceiptSubmit}
-                onCancel={editingReceipt ? handleNewReceipt : undefined}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <ReceiptTable
-            receipts={allReceipts}
-            loading={loading}
-            onEdit={handleEditReceipt}
-            onDelete={handleDeleteReceipt}
-            onView={setCurrentReceipt}
-          />
-        )}
-
-        {/* Recent Receipts - responsive */}
-        {currentView === 'generate' && !currentReceipt && recentReceipts.length > 0 && (
-          <Card className="mt-6 sm:mt-8 border-0 shadow-lg bg-white">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-100">
-              <CardTitle className="text-gray-800 font-bold text-base sm:text-lg">Recent Receipts</CardTitle>
-              <p className="text-gray-600 text-xs sm:text-sm">Quick access to recently generated receipts</p>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              <div className="space-y-3">
-                {recentReceipts.map((receipt) => (
-                  <div 
-                    key={receipt.id}
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 cursor-pointer transition-all duration-200 hover:shadow-md gap-2 sm:gap-0"
-                    onClick={() => setCurrentReceipt(receipt)}
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:pt-20 bg-white border-r border-gray-200">
+          <div className="flex-1 flex flex-col min-h-0">
+            <nav className="flex-1 px-6 py-4">
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    onClick={() => setCurrentView('dashboard')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'dashboard'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
-                    <div className="w-full sm:w-auto">
-                      <p className="font-semibold text-gray-800 text-sm sm:text-base">{receipt.studentName}</p>
-                      <p className="text-xs sm:text-sm text-gray-600">Receipt: {receipt.receiptNumber}</p>
-                      <p className="text-xs text-gray-500">{receipt.studentClass} • {receipt.term}</p>
+                    <Home className="mr-3 h-5 w-5" />
+                    Dashboard
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('receipts')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'receipts'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <FileText className="mr-3 h-5 w-5" />
+                    All Receipts
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('simple-form')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'simple-form'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Plus className="mr-3 h-5 w-5" />
+                    Quick Receipt
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('enhanced-form')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'enhanced-form'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <DollarSign className="mr-3 h-5 w-5" />
+                    Enhanced Receipt
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('fee-templates')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'fee-templates'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Settings className="mr-3 h-5 w-5" />
+                    Fee Templates
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('analytics')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'analytics'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <TrendingUp className="mr-3 h-5 w-5" />
+                    Analytics
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setCurrentView('reporting')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'reporting'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <BarChart className="mr-3 h-5 w-5" />
+                    Reports
+                  </button>
+                </li>
+                {user.role === 'Admin' && (
+                  <>
+                    <li>
+                      <button
+                        onClick={() => setCurrentView('user-management')}
+                        className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                          currentView === 'user-management'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <Users className="mr-3 h-5 w-5" />
+                        User Management
+                      </button>
+                    </li>
+                  </>
+                )}
+                <li>
+                  <button
+                    onClick={() => setCurrentView('password-change')}
+                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      currentView === 'password-change'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <User className="mr-3 h-5 w-5" />
+                    Change Password
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="lg:pl-64 flex-1">
+          {/* Stats Cards for Dashboard */}
+          {currentView === 'dashboard' && (
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-white font-semibold text-base">Total Receipts</CardTitle>
+                      <FileText className="w-6 h-6 text-blue-100" />
                     </div>
-                    <div className="text-left sm:text-right w-full sm:w-auto">
-                      <p className="font-bold text-green-600 text-base sm:text-lg">₦{receipt.amountPaid.toLocaleString()}</p>
-                      <p className="text-xs sm:text-sm text-gray-500">{new Date(receipt.createdAt).toLocaleDateString()}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{loading ? '...' : receipts.length}</p>
+                    <p className="text-blue-100 text-sm mt-1">All time receipts</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-white font-semibold text-base">Total Amount</CardTitle>
+                      <DollarSign className="w-6 h-6 text-green-100" />
                     </div>
-                  </div>
-                ))}
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-bold">{loading ? '...' : `₦${totalAmount.toLocaleString()}`}</p>
+                    <p className="text-green-100 text-sm mt-1">Total collected</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-white font-semibold text-base">This Month</CardTitle>
+                      <Calendar className="w-6 h-6 text-purple-100" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{loading ? '...' : thisMonth}</p>
+                    <p className="text-purple-100 text-sm mt-1">Recent receipts</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-white font-semibold text-base">Students</CardTitle>
+                      <Users className="w-6 h-6 text-orange-100" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">{loading ? '...' : uniqueStudents}</p>
+                    <p className="text-orange-100 text-sm mt-1">Active students</p>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        )}
+
+              <PupilDashboard 
+                receipts={receipts} 
+                loading={loading}
+                onBack={() => setCurrentView('dashboard')}
+                onViewReceipt={setCurrentReceipt}
+              />
+            </div>
+          )}
+
+          <main className="flex-1 overflow-auto">
+            {currentView === 'receipts' && (
+              <div className="p-6 space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900">All Receipts</h2>
+                <ReceiptSearchFilter
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  classFilter={classFilter}
+                  onClassFilterChange={setClassFilter}
+                  termFilter={termFilter}
+                  onTermFilterChange={setTermFilter}
+                  sessionFilter={sessionFilter}
+                  onSessionFilterChange={setSessionFilter}
+                  dateFrom={dateFrom}
+                  onDateFromChange={setDateFrom}
+                  dateTo={dateTo}
+                  onDateToChange={setDateTo}
+                  amountFrom={amountFrom}
+                  onAmountFromChange={setAmountFrom}
+                  amountTo={amountTo}
+                  onAmountToChange={setAmountTo}
+                  onClearFilters={clearFilters}
+                />
+                <ReceiptTable 
+                  receipts={filteredReceipts} 
+                  loading={loading}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  onView={setCurrentReceipt}
+                />
+              </div>
+            )}
+            
+            {currentView === 'simple-form' && (
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Receipt Generator</h2>
+                <SimpleReceiptForm onSubmit={handleSimpleReceiptSubmit} loading={receiptLoading} />
+              </div>
+            )}
+            
+            {currentView === 'enhanced-form' && (
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Enhanced Receipt Generator</h2>
+                <EnhancedReceiptForm onGenerate={handleSimpleReceiptSubmit} loading={receiptLoading} />
+              </div>
+            )}
+            
+            {currentView === 'fee-templates' && (
+              <div className="p-6">
+                <FeeTemplateManagement />
+              </div>
+            )}
+            
+            {currentView === 'analytics' && (
+              <div className="p-6">
+                <AdvancedAnalytics />
+              </div>
+            )}
+            
+            {currentView === 'reporting' && (
+              <div className="p-6">
+                <ReportingDashboard 
+                  receipts={receipts} 
+                  loading={loading}
+                  onBack={() => setCurrentView('dashboard')}
+                />
+              </div>
+            )}
+            
+            {currentView === 'password-change' && (
+              <div className="p-6">
+                <PasswordChange onPasswordChanged={() => toast({ title: "Success", description: "Password changed successfully!" })} />
+              </div>
+            )}
+            
+            {currentView === 'user-management' && (
+              <div className="p-6">
+                <UserManagement />
+              </div>
+            )}
+          </main>
+        </div>
       </div>
+
+      {/* Receipt modal */}
+      {currentReceipt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div>
+              <ReceiptCard 
+                receipt={currentReceipt} 
+                onEdit={() => {}} 
+              />
+              <div className="p-4 text-center">
+                <Button onClick={() => setCurrentReceipt(null)}>Close</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -79,6 +79,7 @@ const Dashboard = ({ user }: DashboardProps) => {
     outstandingBalance?: number;
     paymentStatus?: string;
   }) => {
+    console.log('Dashboard handleSimpleReceiptSubmit called with:', receiptData);
     try {
       // Create enhanced description with fee breakdown and payment details
       let enhancedDescription = receiptData.description;

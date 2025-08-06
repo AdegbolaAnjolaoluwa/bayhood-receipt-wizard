@@ -28,7 +28,9 @@ import {
   Settings, 
   Plus, 
   LogOut,
-  Home
+  Home,
+  X,
+  ChevronLeft
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -48,6 +50,7 @@ const Dashboard = ({ user }: DashboardProps) => {
   const [receiptLoading, setReceiptLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
   
   // Search and filter state
@@ -314,138 +317,155 @@ const Dashboard = ({ user }: DashboardProps) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:pt-20 bg-white border-r border-gray-200">
+        <div className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:pt-20 bg-white border-r border-gray-200 transition-all duration-300 ${
+          sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
+        }`}>
           <div className="flex-1 flex flex-col min-h-0">
-            <nav className="flex-1 px-6 py-4">
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => setCurrentView('dashboard')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'dashboard'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Home className="mr-3 h-5 w-5" />
-                    Dashboard
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('receipts')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'receipts'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <FileText className="mr-3 h-5 w-5" />
-                    All Receipts
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('simple-form')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'simple-form'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Plus className="mr-3 h-5 w-5" />
-                    Quick Receipt
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('enhanced-form')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'enhanced-form'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <DollarSign className="mr-3 h-5 w-5" />
-                    Enhanced Receipt
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('fee-templates')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'fee-templates'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Settings className="mr-3 h-5 w-5" />
-                    Fee Templates
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('analytics')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'analytics'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <TrendingUp className="mr-3 h-5 w-5" />
-                    Analytics
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentView('reporting')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'reporting'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <BarChart className="mr-3 h-5 w-5" />
-                    Reports
-                  </button>
-                </li>
-                {user.role === 'Admin' && (
-                  <>
-                    <li>
-                      <button
-                        onClick={() => setCurrentView('user-management')}
-                        className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                          currentView === 'user-management'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                        <Users className="mr-3 h-5 w-5" />
-                        User Management
-                      </button>
-                    </li>
-                  </>
-                )}
-                <li>
-                  <button
-                    onClick={() => setCurrentView('password-change')}
-                    className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentView === 'password-change'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <User className="mr-3 h-5 w-5" />
-                    Change Password
-                  </button>
-                </li>
-              </ul>
+            {/* Sidebar Header with Close Button */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+              {!sidebarCollapsed && (
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                  Navigation
+                </h3>
+              )}
+              <Button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                variant="ghost"
+                size="sm"
+                className="p-1 hover:bg-gray-100"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {sidebarCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
+            </div>
+            
+            <nav className="flex-1 px-2 py-4 space-y-1">
+              <button
+                onClick={() => setCurrentView('dashboard')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'dashboard'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Dashboard" : ""}
+              >
+                <Home className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Dashboard"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('receipts')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'receipts'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "All Receipts" : ""}
+              >
+                <FileText className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "All Receipts"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('simple-form')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'simple-form'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Quick Receipt" : ""}
+              >
+                <Plus className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Quick Receipt"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('enhanced-form')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'enhanced-form'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Enhanced Receipt" : ""}
+              >
+                <DollarSign className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Enhanced Receipt"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('fee-templates')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'fee-templates'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Fee Templates" : ""}
+              >
+                <Settings className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Fee Templates"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('analytics')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'analytics'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Analytics" : ""}
+              >
+                <TrendingUp className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Analytics"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('reporting')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'reporting'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Reports" : ""}
+              >
+                <BarChart className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Reports"}
+              </button>
+              
+              {user.role === 'Admin' && (
+                <button
+                  onClick={() => setCurrentView('user-management')}
+                  className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                    currentView === 'user-management'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  title={sidebarCollapsed ? "User Management" : ""}
+                >
+                  <Users className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                  {!sidebarCollapsed && "User Management"}
+                </button>
+              )}
+              
+              <button
+                onClick={() => setCurrentView('password-change')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'password-change'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Change Password" : ""}
+              >
+                <User className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Change Password"}
+              </button>
             </nav>
           </div>
         </div>
 
         {/* Main content */}
-        <div className="lg:pl-64 flex-1">
+        <div className={`transition-all duration-300 flex-1 ${
+          sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'
+        }`}>
           {/* Stats Cards for Dashboard */}
           {currentView === 'dashboard' && (
             <div className="p-6">

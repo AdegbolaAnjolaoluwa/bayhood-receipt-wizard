@@ -100,12 +100,6 @@ const DetailedReceiptCard = ({
           >
             Download PDF
           </Button>
-          <Button 
-            onClick={handlePrint}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base"
-          >
-            Print Receipt
-          </Button>
         </div>
       </div>
 

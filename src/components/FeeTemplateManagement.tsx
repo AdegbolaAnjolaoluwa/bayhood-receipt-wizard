@@ -159,8 +159,19 @@ const FeeTemplateManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Fee Structure Templates</h2>
+      {/* Header Section with Logo */}
+      <div className="flex items-center justify-between bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex items-center gap-6">
+          <img 
+            src="/lovable-uploads/ca706d69-cfe9-4cc0-80e4-21dcb229992a.png" 
+            alt="Bayhood Preparatory School Logo" 
+            className="h-16 w-16 object-contain"
+          />
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Fee Structure Templates</h2>
+            <p className="text-slate-600 mt-1">Manage standardized fee templates for efficient billing</p>
+          </div>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) resetForm();
@@ -250,18 +261,18 @@ const FeeTemplateManagement: React.FC = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
-          <Card key={template.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
+          <Card key={template.id} className="hover:shadow-lg transition-all duration-300 border-slate-200 bg-white">
+            <CardHeader className="pb-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-lg">
               <div className="flex items-start justify-between">
-                <CardTitle className="text-lg font-semibold">{template.name}</CardTitle>
-                <div className="flex gap-2">
+                <CardTitle className="text-lg font-semibold text-slate-800">{template.name}</CardTitle>
+                <div className="flex gap-1">
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => handleEdit(template)}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -269,24 +280,26 @@ const FeeTemplateManagement: React.FC = () => {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleDelete(template)}
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                    className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-              <Badge className={getCategoryColor(template.category)}>
+              <Badge className={`${getCategoryColor(template.category)} font-medium`}>
                 {template.category}
               </Badge>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Amount:</span>
-                  <span className="font-semibold text-lg">₦{template.amount.toLocaleString()}</span>
+            <CardContent className="pt-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                  <span className="text-sm font-medium text-slate-600">Amount:</span>
+                  <span className="font-bold text-xl text-slate-900">₦{template.amount.toLocaleString()}</span>
                 </div>
                 {template.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2">{template.description}</p>
+                  <div className="p-3 border border-slate-200 rounded-lg">
+                    <p className="text-sm text-slate-600 leading-relaxed">{template.description}</p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -295,9 +308,14 @@ const FeeTemplateManagement: React.FC = () => {
       </div>
 
       {templates.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg mb-4">No fee templates created yet</p>
-          <p className="text-gray-400">Create your first template to get started</p>
+        <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
+          <div className="max-w-md mx-auto">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Plus className="h-8 w-8 text-slate-400" />
+            </div>
+            <p className="text-slate-600 text-lg font-medium mb-2">No fee templates created yet</p>
+            <p className="text-slate-400">Create your first template to streamline your billing process</p>
+          </div>
         </div>
       )}
     </div>

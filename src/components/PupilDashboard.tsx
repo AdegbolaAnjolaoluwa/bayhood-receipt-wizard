@@ -145,7 +145,7 @@ const PupilDashboard = ({ receipts, loading, onBack, onViewReceipt }: PupilDashb
                     </SelectTrigger>
                     <SelectContent>
                       {uniquePupils.length === 0 ? (
-                        <SelectItem value="" disabled>No pupils found</SelectItem>
+                        <SelectItem value="no-pupils" disabled>No pupils found</SelectItem>
                       ) : (
                         uniquePupils.map(pupil => (
                           <SelectItem key={pupil} value={pupil}>{pupil}</SelectItem>

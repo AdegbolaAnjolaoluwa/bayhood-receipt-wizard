@@ -73,13 +73,13 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
       }
 
       // Class filter
-      if (selectedClass && receipt.studentClass !== selectedClass) return false;
+      if (selectedClass && selectedClass !== 'all-classes' && receipt.studentClass !== selectedClass) return false;
 
       // Term filter
-      if (selectedTerm && receipt.term !== selectedTerm) return false;
+      if (selectedTerm && selectedTerm !== 'all-terms' && receipt.term !== selectedTerm) return false;
 
       // Session filter
-      if (selectedSession && receipt.session !== selectedSession) return false;
+      if (selectedSession && selectedSession !== 'all-sessions' && receipt.session !== selectedSession) return false;
 
       // Amount range filter
       if (minAmount && receipt.amountPaid < parseFloat(minAmount)) return false;
@@ -234,7 +234,7 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
                     <SelectValue placeholder="All Classes" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Classes</SelectItem>
+                    <SelectItem value="all-classes">All Classes</SelectItem>
                     {uniqueClasses.map(cls => (
                       <SelectItem key={cls} value={cls}>{cls}</SelectItem>
                     ))}
@@ -249,7 +249,7 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
                     <SelectValue placeholder="All Terms" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Terms</SelectItem>
+                    <SelectItem value="all-terms">All Terms</SelectItem>
                     {uniqueTerms.map(term => (
                       <SelectItem key={term} value={term}>{term}</SelectItem>
                     ))}
@@ -264,7 +264,7 @@ const ReceiptTable = ({ receipts, loading, onEdit, onDelete, onView }: ReceiptTa
                     <SelectValue placeholder="All Sessions" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Sessions</SelectItem>
+                    <SelectItem value="all-sessions">All Sessions</SelectItem>
                     {uniqueSessions.map(session => (
                       <SelectItem key={session} value={session}>{session}</SelectItem>
                     ))}

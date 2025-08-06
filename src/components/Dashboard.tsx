@@ -77,15 +77,15 @@ const Dashboard = ({ user }: DashboardProps) => {
       );
     }
 
-    if (classFilter) {
+    if (classFilter && classFilter !== 'all-classes') {
       filtered = filtered.filter(receipt => receipt.studentClass === classFilter);
     }
 
-    if (termFilter) {
+    if (termFilter && termFilter !== 'all-terms') {
       filtered = filtered.filter(receipt => receipt.term === termFilter);
     }
 
-    if (sessionFilter) {
+    if (sessionFilter && sessionFilter !== 'all-sessions') {
       filtered = filtered.filter(receipt => receipt.session === sessionFilter);
     }
 

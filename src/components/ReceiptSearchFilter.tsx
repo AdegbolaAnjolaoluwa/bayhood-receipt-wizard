@@ -74,7 +74,7 @@ const ReceiptSearchFilter: React.FC<ReceiptSearchFilterProps> = ({
             <SelectValue placeholder="Select class" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Classes</SelectItem>
+            <SelectItem value="all-classes">All Classes</SelectItem>
             <SelectItem value="Nursery 1">Nursery 1</SelectItem>
             <SelectItem value="Nursery 2">Nursery 2</SelectItem>
             <SelectItem value="Reception">Reception</SelectItem>
@@ -93,7 +93,7 @@ const ReceiptSearchFilter: React.FC<ReceiptSearchFilterProps> = ({
             <SelectValue placeholder="Select term" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Terms</SelectItem>
+            <SelectItem value="all-terms">All Terms</SelectItem>
             <SelectItem value="First Term">First Term</SelectItem>
             <SelectItem value="Second Term">Second Term</SelectItem>
             <SelectItem value="Third Term">Third Term</SelectItem>
@@ -106,7 +106,7 @@ const ReceiptSearchFilter: React.FC<ReceiptSearchFilterProps> = ({
             <SelectValue placeholder="Select session" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Sessions</SelectItem>
+            <SelectItem value="all-sessions">All Sessions</SelectItem>
             <SelectItem value="2023/2024">2023/2024</SelectItem>
             <SelectItem value="2024/2025">2024/2025</SelectItem>
             <SelectItem value="2025/2026">2025/2026</SelectItem>

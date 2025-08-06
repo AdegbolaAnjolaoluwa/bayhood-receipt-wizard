@@ -24,9 +24,10 @@ interface SimpleReceiptFormProps {
     paymentStatus: string;
   }) => void;
   onCancel?: () => void;
+  loading?: boolean;
 }
 
-const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
+const SimpleReceiptForm = ({ onSubmit, onCancel, loading }: SimpleReceiptFormProps) => {
   const [formData, setFormData] = useState({
     studentName: '',
     studentClass: '',
@@ -506,8 +507,9 @@ const SimpleReceiptForm = ({ onSubmit, onCancel }: SimpleReceiptFormProps) => {
         <Button 
           type="submit" 
           className="bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white font-semibold px-8 py-3"
+          disabled={loading}
         >
-          Generate Receipt
+          {loading ? 'Generating...' : 'Generate Receipt'}
         </Button>
         {onCancel && (
           <Button 

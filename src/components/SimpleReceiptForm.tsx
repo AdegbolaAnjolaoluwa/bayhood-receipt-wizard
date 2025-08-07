@@ -59,25 +59,27 @@ const SimpleReceiptForm = ({ onSubmit, onCancel, loading }: SimpleReceiptFormPro
 
   const feeTypeOptions = [
     'Tuition',
-    'PTA Dues',
+    'PTA Dues', 
     'Uniforms',
     'Textbook and Stationery',
     'Development Fee',
     'Late Pickup Fee',
     'Registration Fee',
     'Weekend Childcare Fee',
-    'Lesson Fee - January',
-    'Lesson Fee - February',
-    'Lesson Fee - March',
-    'Lesson Fee - April',
-    'Lesson Fee - May',
-    'Lesson Fee - June',
-    'Lesson Fee - July',
-    'Lesson Fee - August',
-    'Lesson Fee - September',
-    'Lesson Fee - October',
-    'Lesson Fee - November',
-    'Lesson Fee - December',
+    'Summer School Program',
+    // Monthly Lesson Fees (organized by month)
+    'Monthly Lesson Fee - January',
+    'Monthly Lesson Fee - February', 
+    'Monthly Lesson Fee - March',
+    'Monthly Lesson Fee - April',
+    'Monthly Lesson Fee - May',
+    'Monthly Lesson Fee - June',
+    'Monthly Lesson Fee - July',
+    'Monthly Lesson Fee - August',
+    'Monthly Lesson Fee - September',
+    'Monthly Lesson Fee - October',
+    'Monthly Lesson Fee - November',
+    'Monthly Lesson Fee - December',
     'Dailycare Service Fee',
     'Sportwear',
     'Friday Wear',
@@ -108,9 +110,9 @@ const SimpleReceiptForm = ({ onSubmit, onCancel, loading }: SimpleReceiptFormPro
       paymentDate: formData.paymentDate,
     });
     
-    // Basic validation
+    // Basic validation (session is now optional)
     if (!formData.studentName || !formData.studentClass || !formData.term || 
-        !formData.session || !formData.amountPaid || !formData.paymentDate) {
+        !formData.amountPaid || !formData.paymentDate) {
       console.error('Form validation failed - missing required fields');
       return;
     }
@@ -177,6 +179,7 @@ const SimpleReceiptForm = ({ onSubmit, onCancel, loading }: SimpleReceiptFormPro
     `${currentYear - 1}/${currentYear}`,
     `${currentYear}/${currentYear + 1}`,
     `${currentYear + 1}/${currentYear + 2}`,
+    '2025/2026',
   ];
 
   const classes = [
@@ -261,14 +264,14 @@ const SimpleReceiptForm = ({ onSubmit, onCancel, loading }: SimpleReceiptFormPro
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Session *
+              Session
             </label>
             <Select 
               value={formData.session} 
               onValueChange={(value) => setFormData({...formData, session: value})}
             >
               <SelectTrigger className="border-2 border-gray-300 focus:border-blue-500">
-                <SelectValue placeholder="Select session" />
+                <SelectValue placeholder="Select session (optional)" />
               </SelectTrigger>
               <SelectContent>
                 {sessions.map((session) => (

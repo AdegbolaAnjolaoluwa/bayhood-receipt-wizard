@@ -23,7 +23,7 @@ const FeeTemplateManagement: React.FC = () => {
     description: '',
   });
 
-  const categories: FeeCategory[] = ['Tuition', 'Books', 'Transport', 'Uniform', 'Examination', 'Activities', 'Other'];
+  const categories: FeeCategory[] = ['Tuition', 'Books', 'Transport', 'Uniform', 'Examination', 'Activities', 'Summer School', 'Other'];
 
   useEffect(() => {
     loadTemplates();
@@ -141,6 +141,7 @@ const FeeTemplateManagement: React.FC = () => {
       'Uniform': 'bg-purple-100 text-purple-800',
       'Examination': 'bg-red-100 text-red-800',
       'Activities': 'bg-indigo-100 text-indigo-800',
+      'Summer School': 'bg-orange-100 text-orange-800',
       'Other': 'bg-gray-100 text-gray-800',
     };
     return colors[category] || colors['Other'];

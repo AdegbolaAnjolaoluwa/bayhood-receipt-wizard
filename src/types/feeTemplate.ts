@@ -9,4 +9,4 @@ export interface FeeTemplate {
   created_by?: string;
 }
 
-export type FeeCategory = 'Tuition' | 'Books' | 'Transport' | 'Uniform' | 'Examination' | 'Activities' | 'Other';
+export type FeeCategory = 'Tuition' | 'Books' | 'Transport' | 'Uniform' | 'Examination' | 'Activities' | 'Summer School' | 'Other';

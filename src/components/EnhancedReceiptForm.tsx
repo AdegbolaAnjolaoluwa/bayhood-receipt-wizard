@@ -141,6 +141,7 @@ const EnhancedReceiptForm: React.FC<EnhancedReceiptFormProps> = ({ onGenerate, l
       'Uniform': 'bg-purple-100 text-purple-800',
       'Examination': 'bg-red-100 text-red-800',
       'Activities': 'bg-indigo-100 text-indigo-800',
+      'Summer School': 'bg-orange-100 text-orange-800',
       'Other': 'bg-gray-100 text-gray-800',
     };
     return colors[category] || colors['Other'];
@@ -218,12 +219,13 @@ const EnhancedReceiptForm: React.FC<EnhancedReceiptFormProps> = ({ onGenerate, l
               </label>
               <Select value={formData.session} onValueChange={(value) => setFormData({...formData, session: value})}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select session (optional)" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="2023/2024">2023/2024</SelectItem>
                   <SelectItem value="2024/2025">2024/2025</SelectItem>
                   <SelectItem value="2025/2026">2025/2026</SelectItem>
+                  <SelectItem value="2026/2027">2026/2027</SelectItem>
                 </SelectContent>
               </Select>
             </div>

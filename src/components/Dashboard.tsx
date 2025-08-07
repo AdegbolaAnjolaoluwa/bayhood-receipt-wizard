@@ -10,6 +10,8 @@ import ReceiptSearchFilter from './ReceiptSearchFilter';
 import FeeTemplateManagement from './FeeTemplateManagement';
 import AdvancedAnalytics from './AdvancedAnalytics';
 import EnhancedReceiptForm from './EnhancedReceiptForm';
+import CustomPaymentForm from './CustomPaymentForm';
+import DebtTracker from './DebtTracker';
 import PasswordChange from './PasswordChange';
 import UserManagement from './UserManagement';
 import { Receipt } from '@/types/receipt';
@@ -30,7 +32,9 @@ import {
   LogOut,
   Home,
   X,
-  ChevronLeft
+  ChevronLeft,
+  CreditCard,
+  AlertTriangle
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -44,7 +48,7 @@ const Dashboard = ({ user }: DashboardProps) => {
   const { signOut } = useAuth();
   const { toast } = useToast();
   
-  const [currentView, setCurrentView] = useState<'dashboard' | 'receipts' | 'simple-form' | 'enhanced-form' | 'fee-templates' | 'analytics' | 'reporting' | 'password-change' | 'user-management'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'receipts' | 'simple-form' | 'enhanced-form' | 'custom-payment' | 'debt-tracker' | 'fee-templates' | 'analytics' | 'reporting' | 'password-change' | 'user-management'>('dashboard');
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [filteredReceipts, setFilteredReceipts] = useState<Receipt[]>([]);
   const [receiptLoading, setReceiptLoading] = useState(false);
@@ -159,6 +163,9 @@ const Dashboard = ({ user }: DashboardProps) => {
     console.log('Dashboard handleSimpleReceiptSubmit called with:', receiptData);
     setReceiptLoading(true);
     try {
+      // Validate session field - it can be empty now since it's optional
+      const sessionValue = receiptData.session || '';
+      
       // Create enhanced description with fee breakdown and payment details
       let enhancedDescription = receiptData.description;
       
@@ -197,7 +204,7 @@ const Dashboard = ({ user }: DashboardProps) => {
         studentName: receiptData.studentName,
         studentClass: receiptData.studentClass,
         term: receiptData.term,
-        session: receiptData.session,
+        session: sessionValue,
         amountPaid: receiptData.amountPaid,
         paymentDate: receiptData.paymentDate,
         description: enhancedDescription,
@@ -393,6 +400,32 @@ const Dashboard = ({ user }: DashboardProps) => {
               </button>
               
               <button
+                onClick={() => setCurrentView('custom-payment')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'custom-payment'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Custom Payment" : ""}
+              >
+                <CreditCard className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Custom Payment"}
+              </button>
+              
+              <button
+                onClick={() => setCurrentView('debt-tracker')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
+                  currentView === 'debt-tracker'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={sidebarCollapsed ? "Debt Tracker" : ""}
+              >
+                <AlertTriangle className={`h-5 w-5 ${sidebarCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!sidebarCollapsed && "Debt Tracker"}
+              </button>
+
+              <button
                 onClick={() => setCurrentView('fee-templates')}
                 className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${
                   currentView === 'fee-templates'
@@ -576,6 +609,19 @@ const Dashboard = ({ user }: DashboardProps) => {
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Enhanced Receipt Generator</h2>
                 <EnhancedReceiptForm onGenerate={handleSimpleReceiptSubmit} loading={receiptLoading} />
+              </div>
+            )}
+            
+            {currentView === 'custom-payment' && (
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Custom Payment Entry</h2>
+                <CustomPaymentForm onPaymentAdded={loadReceipts} />
+              </div>
+            )}
+            
+            {currentView === 'debt-tracker' && (
+              <div className="p-6">
+                <DebtTracker />
               </div>
             )}
             

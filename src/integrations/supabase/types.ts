@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      custom_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          payment_date: string
+          payment_method: string | null
+          session: string | null
+          student_class: string
+          student_name: string
+          term: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          payment_date: string
+          payment_method?: string | null
+          session?: string | null
+          student_class: string
+          student_name: string
+          term: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          payment_date?: string
+          payment_method?: string | null
+          session?: string | null
+          student_class?: string
+          student_name?: string
+          term?: string
+        }
+        Relationships: []
+      }
       fee_templates: {
         Row: {
           amount: number
@@ -116,6 +158,51 @@ export type Database = {
           student_class?: string
           student_name?: string
           term?: string
+        }
+        Relationships: []
+      }
+      student_accounts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          last_payment_date: string | null
+          outstanding_balance: number | null
+          session: string | null
+          student_class: string
+          student_name: string
+          term: string
+          total_fees_assigned: number
+          total_paid: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_payment_date?: string | null
+          outstanding_balance?: number | null
+          session?: string | null
+          student_class: string
+          student_name: string
+          term: string
+          total_fees_assigned?: number
+          total_paid?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_payment_date?: string | null
+          outstanding_balance?: number | null
+          session?: string | null
+          student_class?: string
+          student_name?: string
+          term?: string
+          total_fees_assigned?: number
+          total_paid?: number
+          updated_at?: string
         }
         Relationships: []
       }
